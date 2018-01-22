@@ -1,0 +1,18 @@
+<beast version="2.0"
+       namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution:beast.math.distributions'>
+        <!--[CDATA[
+            <plugin spec='BBDPrior' id='BDDPrior:$(m)'-->
+            
+            
+            <operator id="tipDatesSampler.$(m)" spec="TipDatesRandomWalker" taxonset="@$(m)" tree="@Tree.t:$(n)" weight="1.0" windowSize="1.0"/>     
+            
+            <distribution id="$(m).prior" spec="BBDPrior" tree="@Tree.t:$(n)">
+                <taxonset id="$(m)" spec="TaxonSet" name="taxonset"/>
+                <distribution spec="ParametricDistribution" name="distr">
+            </distribution>
+        ]]>
+</beast>
+
+         
+         
+         
