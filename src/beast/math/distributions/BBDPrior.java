@@ -29,23 +29,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import beast.core.Input;
 import beast.core.Description;
+import beast.core.Distribution;
+import beast.core.Input;
 import beast.core.State;
+import beast.evolution.alignment.TaxonSet;
+import beast.evolution.tree.Tree;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Blind dating prior.
  * @author Bradley R. Jones
  */
 @Description("Blind dating prior")
-public class BBDPrior extends MRCAPrior {
-    public final Input<Boolean> onlyUseTipsInput = new Input<>("tipsonly",
-            "flag to indicate tip dates are to be used instead of the MRCA node. " +
-                    "If set to true, the prior is applied to the height of all tips in the taxonset " +
-                    "and the monophyletic flag is ignored. Must be true.", true);
+public class BBDPrior extends Distribution {
+    public final Input<Tree> treeInput = new Input<>("tree", "the tree containing the taxon set", Input.Validate.REQUIRED);
+    public final Input<TaxonSet> taxonsetInput = new Input<>("taxonset",
+            "set of taxa for which prior information is available");
+    public final Input<ParametricDistribution> distInput = new Input<>("distr",
+            "distribution used to calculate prior over MRCA time, "
+                    + "e.g. normal, beta, gamma.", Input.Validate.REQUIRED);
     
     double[] oriDate;
-        
+    ParametricDistribution dist;
+    Tree tree;
+    // number of taxa in taxon set
+    int nrOfTaxa = -1;
+    // array of flags to indicate which taxa are in the set
+    Set<String> isInTaxaSet = new LinkedHashSet<>();
+
+    // array of indices of taxa
+    int[] taxonIndex;
+    
+    boolean initialised = false;
+    
     @Override
     public void initAndValidate() {
         dist = distInput.get();
@@ -55,9 +73,8 @@ public class BBDPrior extends MRCAPrior {
             taxaNames.add(taxon);
         }
         // determine nr of taxa in taxon set
-        List<String> set = null;
         if (taxonsetInput.get() != null) {
-            set = taxonsetInput.get().asStringList();
+            List<String> set = taxonsetInput.get().asStringList();
             nrOfTaxa = set.size();
         } else {
             // assume all taxa
@@ -66,7 +83,6 @@ public class BBDPrior extends MRCAPrior {
         initialised = false;
     }
     
-    @Override
     protected void initialise() {
         List<String> set = null;
         int k = 0;
@@ -142,7 +158,6 @@ public class BBDPrior extends MRCAPrior {
   /**
      * Loggable interface implementation follows *
      */
-    @Override
     public void init(final PrintStream out) {
     	if (!initialised) {
     		initialise();

@@ -127,14 +127,14 @@
                 <treeIntervals id="TreeIntervals" spec="TreeIntervals" tree="@tree"/>
             </distribution>
 
-            <distribution id="tipDates" monophyletic="false" spec="distributions.BBDPrior" tipsonly="true" tree="@tree">
+            <distribution id="tipDates" monophyletic="false" spec="beast.math.distributions.BBDPrior" tipsonly="true" tree="@tree">
                 <taxonset id="TaxonSet0" spec="TaxonSet">
                     <taxon id="D4PRico86" spec="Taxon"/>
                 </taxonset>
                 <distr id="Uniform0" lower="-1" offset="0.0" spec="distributions.Uniform" upper="1"/>
             </distribution>
 
-            <distribution id="tipDates2" monophyletic="false" spec="distributions.BBDPrior" tipsonly="true" tree="@tree">
+            <distribution id="tipDates2" monophyletic="false" spec="beast.math.distributions.BBDPrior" tipsonly="true" tree="@tree">
                 <taxonset id="TaxonSet1" spec="TaxonSet">
                     <taxon id="D4ElSal94" spec="Taxon"/>
                 </taxonset>
