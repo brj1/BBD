@@ -45,11 +45,11 @@ import java.util.Set;
 @Description("Blind dating prior")
 public class BBDPrior extends Distribution {
     public final Input<Tree> treeInput = new Input<>("tree", "the tree containing the taxon set", Input.Validate.REQUIRED);
-    public final Input<TaxonSet> taxonsetInput = new Input<>("taxonset",
-            "set of taxa for which prior information is available");
     public final Input<ParametricDistribution> distInput = new Input<>("distr",
             "distribution used to calculate prior over MRCA time, "
                     + "e.g. normal, beta, gamma.", Input.Validate.REQUIRED);
+    public final Input<TaxonSet> taxonsetInput = new Input<>("taxonset",
+            "set of taxa to date");
     
     double[] oriDate;
     ParametricDistribution dist;
