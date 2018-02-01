@@ -93,6 +93,9 @@ public class BBDPrior extends MRCAPrior {
         for (final int i : super.taxonIndex) {
             oriDate[k++] = super.tree.getNode(i).getDate();
         }
+
+        if (useOriginate || !onlyUseTips)
+            throw new IllegalArgumentException("useOriginate must be false and onlyUseTips must be true.");
         
         super.initialised = true;
     }
