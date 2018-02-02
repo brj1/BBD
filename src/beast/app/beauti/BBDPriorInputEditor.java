@@ -133,7 +133,10 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         if (prior.distInput.get() != null) {
             String id = prior.distInput.get().getID();
             //id = BeautiDoc.parsePartition(id);
-            id = id.substring(0, id.indexOf('.'));
+            if (id != null)
+                id = id.substring(0, id.indexOf('.'));
+            else
+                id = "";
             for (BeautiSubTemplate template : availableBEASTObjects) {
                 if (template.classInput.get() != null && template.shortClassName.equals(id)) {
                     comboBox.setSelectedItem(template);
@@ -232,6 +235,8 @@ public class BBDPriorInputEditor extends InputEditor.Base {
     	}
    	operator.setID("tipDatesSampler." + taxonset.getID());
    	doc.mcmc.get().setInputValue("operator", operator);
+        
+        prior.onlyUseTipsInput.set(true);
     }
     
     Set<Taxon> getTaxonCandidates(BBDPrior prior) {

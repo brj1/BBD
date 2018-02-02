@@ -43,14 +43,7 @@ import java.util.Set;
  * @author Bradley R. Jones
  */
 @Description("Blind dating prior")
-public class BBDPrior extends Distribution {
-    public final Input<Tree> treeInput = new Input<>("tree", "the tree containing the taxon set", Input.Validate.REQUIRED);
-    public final Input<ParametricDistribution> distInput = new Input<>("distr",
-            "distribution used to calculate prior over MRCA time, "
-                    + "e.g. normal, beta, gamma.", Input.Validate.REQUIRED);
-    public final Input<TaxonSet> taxonsetInput = new Input<>("taxonset",
-            "set of taxa to date");
-    
+public class BBDPrior extends MRCAPriorInternal {
     double[] oriDate;
     ParametricDistribution dist;
     Tree tree;
@@ -81,6 +74,10 @@ public class BBDPrior extends Distribution {
             nrOfTaxa = taxaNames.size();
         }
         initialised = false;
+        
+         if (!onlyUseTipsInput.get()) {
+            throw new IllegalArgumentException("onlyUseTips must be true.");
+        }
     }
     
     protected void initialise() {
