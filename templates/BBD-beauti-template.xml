@@ -1,20 +1,11 @@
-<!--<beast version="2.0"
-       namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution'>
-    
-    <mergewith point='parametricDistributions'>
-        <subtemplate id="BBDPrior" class="beast.math.distributions.BBDPrior" mainid="[top]">
-            <![CDATA[
-            <distribution id="$(m).prior" spec="beast.math.distributions.BBDPrior" tree="@Tree.t:$(n)">
-                <taxonset id="$(m)" spec="TaxonSet" name="taxonset"/>
-                <distribution spec="beast.math.distributions.ParametricDistribution" name="distr"/>
-            </distribution>
-            
-            <operator id="tipDatesSampler.$(m)" spec="TipDatesRandomWalker" taxonset="@$(m)" tree="@Tree.t:$(n)" weight="1.0" windowSize="1.0"/>
-            ]]>
-            
-            <connect srcID="tipDatesScaler:$(m)" targetID="mcmc" inputName="operator" if="true">Scale dates of partition $(m)</connect>
-        </subtemplate>
+<!--<beast version="2.0" namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution'>
+    <mergewith point="misc">
+        <subtemplate
+            id="BBDPrior"
+            class="beast.math.distributions.BBDPrior"
+            mainid="$(n).prior"
+            suppressInputs="beast.math.distributions.BBDPrior.tree,beast.math.distributions.BBDPrioir.taxonset,beast.math.distributions.BBDPrioir.tipsonly"
+       >
+       </subtemplate>
     </mergewith>
 </beast>-->
-
-<!--<plugin spec='BBDPrior' id='BDDPrior:$(m)'>            --> 

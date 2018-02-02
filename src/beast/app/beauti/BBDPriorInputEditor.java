@@ -75,7 +75,13 @@ public class BBDPriorInputEditor extends InputEditor.Base {
 
         BBDPrior prior = (BBDPrior) beastObject;
         String text = prior.getID();
-
+        
+        if (!doc.beautiConfig.suppressBEASTObjects.contains("beast.math.distributions.BBDPrior.tree")) {
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.tree");
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.tipsonly");
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.taxonset");
+        }
+        
         JButton taxonButton = new JButton(text);
 //        taxonButton.setMinimumSize(Base.PREFERRED_SIZE);
 //        taxonButton.setPreferredSize(Base.PREFERRED_SIZE);
@@ -113,8 +119,8 @@ public class BBDPriorInputEditor extends InputEditor.Base {
                     e1.printStackTrace();
                 }
                 refreshPanel();
-            });
-
+            }
+        );
 
         if (prior.distInput.getType() == null) {
             try {
@@ -149,7 +155,7 @@ public class BBDPriorInputEditor extends InputEditor.Base {
             @Override
             public void actionPerformed(ActionEvent e) {
                 @SuppressWarnings("unchecked")
-				JComboBox<BeautiSubTemplate> comboBox = (JComboBox<BeautiSubTemplate>) e.getSource();
+		JComboBox<BeautiSubTemplate> comboBox = (JComboBox<BeautiSubTemplate>) e.getSource();
                 BeautiSubTemplate template = (BeautiSubTemplate) comboBox.getSelectedItem();
                 List<?> list = (List<?>) m_input.get();
                 BBDPrior prior = (BBDPrior) list.get(itemNr);
