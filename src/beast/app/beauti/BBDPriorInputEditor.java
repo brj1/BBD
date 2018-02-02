@@ -232,11 +232,11 @@ public class BBDPriorInputEditor extends InputEditor.Base {
     	if (operator == null) {
             operator = new TipDatesRandomWalker();
             operator.initByName("tree", prior.treeInput.get(), "taxonset", taxonset, "windowSize", 1.0, "weight", 1.0);
+            operator.setID("tipDatesSampler." + taxonset.getID());
+            doc.mcmc.get().setInputValue("operator", operator);
     	}
-   	operator.setID("tipDatesSampler." + taxonset.getID());
-   	doc.mcmc.get().setInputValue("operator", operator);
         
-        prior.onlyUseTipsInput.set(true);
+        prior.onlyUseTipsInput.setValue(true, prior);
     }
     
     Set<Taxon> getTaxonCandidates(BBDPrior prior) {
