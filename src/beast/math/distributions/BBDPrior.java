@@ -30,10 +30,7 @@ import java.util.List;
 import java.util.Random;
 
 import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
 import beast.core.State;
-import beast.evolution.alignment.TaxonSet;
 import beast.evolution.tree.Tree;
 import java.util.LinkedHashSet;
 import java.util.Set;
