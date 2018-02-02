@@ -1,4 +1,4 @@
-<addon name="BBD" version="1.0.1">
+<addon name="BBD" version="1.0.2">
 	 <depends on="BEAST" atleast="2.4.0"/>
 
 	<!-- Add other dependencies as necessary. -->
