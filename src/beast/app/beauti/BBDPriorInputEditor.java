@@ -1,5 +1,5 @@
 /*
-* File BBDPrior.java
+* File BBDPriorInputEditor.java
 *
 * Copyright (C) 2017 Bradley R. Jones bjones@cfenet.ubc.ca
 *
@@ -29,6 +29,7 @@ import beast.app.draw.InputEditor;
 import beast.evolution.alignment.TaxonSet;
 import beast.evolution.tree.Tree;
 import beast.math.distributions.BBDPrior;
+import beast.math.distributions.MRCAPrior;
 import beast.math.distributions.OneOnX;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +74,7 @@ public class BBDPriorInputEditor extends InputEditor.Base {
 		
         Box itemBox = Box.createHorizontalBox();
 
-        BBDPrior prior = (BBDPrior) beastObject;
+        MRCAPrior prior = (MRCAPrior) beastObject;
         String text = prior.getID();
 
         JButton taxonButton = new JButton(text);
@@ -146,7 +147,7 @@ public class BBDPriorInputEditor extends InputEditor.Base {
             @Override
             public void actionPerformed(ActionEvent e) {
                 @SuppressWarnings("unchecked")
-				JComboBox<BeautiSubTemplate> comboBox = (JComboBox<BeautiSubTemplate>) e.getSource();
+		JComboBox<BeautiSubTemplate> comboBox = (JComboBox<BeautiSubTemplate>) e.getSource();
                 BeautiSubTemplate template = (BeautiSubTemplate) comboBox.getSelectedItem();
                 List<?> list = (List<?>) m_input.get();
                 BBDPrior prior = (BBDPrior) list.get(itemNr);
@@ -232,9 +233,13 @@ public class BBDPriorInputEditor extends InputEditor.Base {
             operator.setID("tipDatesSampler." + taxonset.getID());
             doc.mcmc.get().setInputValue("operator", operator);
     	}
+        
+        prior.isMonophyleticInput.set(false);
+        prior.onlyUseTipsInput.set(true);
+        prior.useOriginateInput.set(false);
     }
     
-    Set<Taxon> getTaxonCandidates(BBDPrior prior) {
+    Set<Taxon> getTaxonCandidates(MRCAPrior prior) {
         Set<Taxon> candidates = new HashSet<>();
         Tree tree = prior.treeInput.get();
         String [] taxa = null;
