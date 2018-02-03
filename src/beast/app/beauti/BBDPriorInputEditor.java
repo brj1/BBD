@@ -42,6 +42,7 @@ import beast.core.util.Log;
 import beast.core.BEASTInterface;
 import beast.core.Input;
 import beast.core.Operator;
+import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Taxon;
 import beast.evolution.operators.TipDatesRandomWalker;
 import java.util.HashSet;
@@ -71,10 +72,18 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         m_input = input;
         m_beastObject = beastObject;
         this.itemNr= listItemNr;
-		
+	
+        if (!doc.beautiConfig.suppressBEASTObjects.contains("beast.math.distributions.BBDPrior.tree")) {
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.tree");
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.tipsonly");
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.taxonset");
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.monophyletic");
+            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.useOriginate");
+        }
+        
         Box itemBox = Box.createHorizontalBox();
 
-        MRCAPrior prior = (MRCAPrior) beastObject;
+        BBDPrior prior = (BBDPrior) beastObject;
         String text = prior.getID();
 
         JButton taxonButton = new JButton(text);
@@ -116,7 +125,6 @@ public class BBDPriorInputEditor extends InputEditor.Base {
                 refreshPanel();
             });
 
-
         if (prior.distInput.getType() == null) {
             try {
                 prior.distInput.setValue(new OneOnX(), prior);
@@ -134,7 +142,10 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         if (prior.distInput.get() != null) {
             String id = prior.distInput.get().getID();
             //id = BeautiDoc.parsePartition(id);
-            id = id.substring(0, id.indexOf('.'));
+            if (id == null)
+                id = "";
+            else
+                id = id.substring(0, id.indexOf('.'));
             for (BeautiSubTemplate template : availableBEASTObjects) {
                 if (template.classInput.get() != null && template.shortClassName.equals(id)) {
                     comboBox.setSelectedItem(template);
@@ -216,6 +227,9 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         itemBox.add(deleteButton);
         add(itemBox);
 
+        if (prior.startingDateProbInput.get() == null)
+            prior.startingDateProbInput.setValue(new RealParameter("0"), prior);
+        
         // add operator
         TipDatesRandomWalker operator = null;
     	TaxonSet taxonset = prior.taxonsetInput.get();
@@ -234,9 +248,9 @@ public class BBDPriorInputEditor extends InputEditor.Base {
             doc.mcmc.get().setInputValue("operator", operator);
     	}
         
-        prior.isMonophyleticInput.set(false);
-        prior.onlyUseTipsInput.set(true);
-        prior.useOriginateInput.set(false);
+        prior.isMonophyleticInput.setValue(false, prior);
+        prior.onlyUseTipsInput.setValue(true, prior);
+        prior.useOriginateInput.setValue(false, prior);
     }
     
     Set<Taxon> getTaxonCandidates(MRCAPrior prior) {

@@ -28,6 +28,14 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import beast.core.Description;
+import beast.core.Input;
+import beast.core.State;
+import beast.core.parameter.RealParameter;
+import beast.util.Randomizer;
+import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.math.MathException;
 
 
 /**
@@ -36,7 +44,10 @@ import beast.core.Description;
  */
 @Description("Blind dating prior")
 public class BBDPrior extends MRCAPrior {
+    public final Input<RealParameter> startingDateProbInput = new Input<>("startDateProbability", "the probability that the starting date is correct");
+    
     double[] oriDate;
+    double startingDateProb;
 
     @Override
     public void initAndValidate() {
@@ -54,6 +65,17 @@ public class BBDPrior extends MRCAPrior {
             // assume all taxa
             super.nrOfTaxa = taxaNames.size();
         }
+        if (startingDateProbInput.get() == null)
+            startingDateProb = 0;
+        else
+            startingDateProb = startingDateProbInput.get().getValue();
+        
+        if (super.dist == null)
+            throw new IllegalArgumentException("A distribution must be specified");
+        
+        if (startingDateProb > 1 || startingDateProb < 0)
+            throw new IllegalArgumentException("Starting Date Probability must be betweem 0 and 1");
+        
        super.initialised = false;
     }
     
@@ -93,9 +115,6 @@ public class BBDPrior extends MRCAPrior {
         for (final int i : super.taxonIndex) {
             oriDate[k++] = super.tree.getNode(i).getDate();
         }
-
-        if (useOriginate || !onlyUseTips)
-            throw new IllegalArgumentException("useOriginate must be false and onlyUseTips must be true.");
         
         super.initialised = true;
     }
@@ -111,8 +130,12 @@ public class BBDPrior extends MRCAPrior {
             return super.logP;
         }
         int k = 0;
-        for (final int i  : taxonIndex) {
-            super.logP += super.dist.logDensity(oriDate[k++] - super.tree.getNode(i).getDate());
+        for (final int i  : super.taxonIndex) {
+            if (startingDateProb > 0 && oriDate[k] - super.tree.getNode(i).getDate() == 0)
+                super.logP += java.lang.Math.log(startingDateProb);
+            else
+                super.logP += super.dist.logDensity(oriDate[k] - super.tree.getNode(i).getDate()) + java.lang.Math.log(1 - startingDateProb);
+            k++;
         }
         return super.logP;
     }
