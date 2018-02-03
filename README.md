@@ -16,6 +16,5 @@ To add prior in BEATUi 2:
 1. Add aligment and tip dates
 2. Go to Priors tab and click the "+ Add Prior Button"
 3. Select "BBD Prior" and click OK
-4. Choose taxa to date and give taxon saet a label
-5. After clicking OK BEAUTi will give a warning message: "Could not add entry for distr". This can be ignored.
-6. Select your prior distribution and you're off.
+4. Choose taxa to date, give taxon set a label and click OK
+6. Select your prior distribution and starting date probability and you're off.
