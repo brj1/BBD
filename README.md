@@ -11,7 +11,7 @@ mkdir ~/Library/Application\ Support/BEAST/2.4/BBD
 cp -r * ~/Library/Application\ Support/BEAST/2.4/BBD/
 ```
 
-To add prior in BEATUi 2:
+To add prior in BEAUTi 2:
 
 1. Add aligment and tip dates
 2. Go to Priors tab and click the "+ Add Prior Button"
