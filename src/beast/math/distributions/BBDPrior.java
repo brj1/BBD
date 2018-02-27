@@ -1,7 +1,7 @@
 /*
 * File BBDPrior.java
 *
-* Copyright (C) 2017 Bradley R. Jones bjones@cfenet.ubc.ca
+* Copyright (C) 2018 Bradley R. Jones bjones@cfenet.ubc.ca
 *
 * This file is part of BBD.
 * See the NOTICE file distributed with this work for additional
@@ -65,6 +65,7 @@ public class BBDPrior extends MRCAPrior {
             // assume all taxa
             super.nrOfTaxa = taxaNames.size();
         }
+        
         if (startingDateProbInput.get() == null)
             startingDateProb = 0;
         else
