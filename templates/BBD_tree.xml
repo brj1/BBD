@@ -124,7 +124,6 @@ suppressInputs='beast.evolution.speciation.BirthDeathSkylineWithDatesModel.inter
             <connect srcID='rhoScaler.t:$(n)' targetID='mcmc' inputName='operator'     if='inposterior(BirthDeathSkyMultiRhoWithDates.t:$(n)) and rho.t:$(n)/estimate=true'/>
             <connect srcID='reproductiveNumberScaler.t:$(n)' targetID='mcmc' inputName='operator'     if='inposterior(BirthDeathSkyMultiRhoWithDates.t:$(n)) and reproductiveNumber.t:$(n)/estimate=true'/>
             <connect srcID='updownBD.t:$(n)' targetID='mcmc' inputName='operator'     if='inposterior(BirthDeathSkyMultiRhoWithDates.t:$(n)) and reproductiveNumber.t:$(n)/estimate=true and becomeUninfectiousRate.t:$(n)/estimate=true'/>
-            <connect srcID='origScaler.t:$(n)' targetID='mcmc' inputName='operator'     if='inposterior(BirthDeathSkyMultiRhoWithDates.t:$(n)) and origin.t:$(n)/estimate=true'/>
 
 
 
