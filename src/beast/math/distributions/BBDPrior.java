@@ -29,13 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import beast.core.Description;
 import beast.core.Input;
-import beast.core.State;
 import beast.core.parameter.RealParameter;
-import beast.util.Randomizer;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.math.MathException;
+import beast.evolution.tree.Node;
 
 
 /**
@@ -45,25 +40,27 @@ import org.apache.commons.math.MathException;
 @Description("Blind dating prior")
 public class BBDPrior extends MRCAPrior {
     public final Input<RealParameter> startingDateProbInput = new Input<>("startDateProbability", "the probability that the starting date is correct");
+//    public final Input<Double> startingDateDifferenceInput = new Input<>("startDateDifference", "the starting value");
     
     double[] oriDate;
     double startingDateProb;
+//    double startingDateDifference;
 
     @Override
     public void initAndValidate() {
-        super.dist = super.distInput.get();
-        super.tree = super.treeInput.get();
+        dist = distInput.get();
+        tree = treeInput.get();
         final List<String> taxaNames = new ArrayList<>();
-        for (final String taxon : super.tree.getTaxaNames()) {
+        for (final String taxon : tree.getTaxaNames()) {
             taxaNames.add(taxon);
         }
         // determine nr of taxa in taxon set
-        if (super.taxonsetInput.get() != null) {
-            List<String> set = super.taxonsetInput.get().asStringList();
-            super.nrOfTaxa = set.size();
+        if (taxonsetInput.get() != null) {
+            List<String> set = taxonsetInput.get().asStringList();
+            nrOfTaxa = set.size();
         } else {
             // assume all taxa
-            super.nrOfTaxa = taxaNames.size();
+            nrOfTaxa = taxaNames.size();
         }
         
         if (startingDateProbInput.get() == null)
@@ -71,74 +68,88 @@ public class BBDPrior extends MRCAPrior {
         else
             startingDateProb = startingDateProbInput.get().getValue();
         
-        if (super.dist == null)
+//        if (startingDateDifferenceInput.get() == null)
+//            startingDateDifference = 0;
+//        else
+//            startingDateDifference = startingDateDifferenceInput.get();
+        
+        if (dist == null)
             throw new IllegalArgumentException("A distribution must be specified");
         
         if (startingDateProb > 1 || startingDateProb < 0)
             throw new IllegalArgumentException("Starting Date Probability must be betweem 0 and 1");
         
-       super.initialised = false;
+        initialised = false;
     }
     
+    @Override
     protected void initialise() {
         List<String> set = null;
         int k = 0;
-        if (super.taxonsetInput.get() != null) {
-            set = super.taxonsetInput.get().asStringList();
+        if (taxonsetInput.get() != null) {
+            set = taxonsetInput.get().asStringList();
         }
         final List<String> taxaNames = new ArrayList<>();
-        for (final String taxon : super.tree.getTaxaNames()) {
+        for (final String taxon : tree.getTaxaNames()) {
             taxaNames.add(taxon);
         }
 
-        super.taxonIndex = new int[super.nrOfTaxa];
+        taxonIndex = new int[nrOfTaxa];
         if ( set != null )  {  // m_taxonset.get() != null) {
-            super.isInTaxaSet.clear();
+            isInTaxaSet.clear();
             for (final String taxon : set) {
                 final int taxonIndex_ = taxaNames.indexOf(taxon);
                 if (taxonIndex_ < 0) {
                     throw new RuntimeException("Cannot find taxon " + taxon + " in data");
                 }
-                if (super.isInTaxaSet.contains(taxon)) {
+                if (isInTaxaSet.contains(taxon)) {
                     throw new RuntimeException("Taxon " + taxon + " is defined multiple times, while they should be unique");
                 }
-                super.isInTaxaSet.add(taxon);
-                super.taxonIndex[k++] = taxonIndex_;
+                isInTaxaSet.add(taxon);
+                taxonIndex[k++] = taxonIndex_;
             }
         } else {
-            for (int i = 0; i < super.nrOfTaxa; i++) {
-                super.taxonIndex[i] = i;
+            for (int i = 0; i < nrOfTaxa; i++) {
+                taxonIndex[i] = i;
             }
         }
         
-        oriDate = new double[super.nrOfTaxa];
+        oriDate = new double[nrOfTaxa];
         k = 0;
-        for (final int i : super.taxonIndex) {
-            oriDate[k++] = super.tree.getNode(i).getDate();
+        for (final int i : taxonIndex) {
+            Node node = tree.getNode(i);
+            oriDate[k] = node.getDate();
+//           if (startingDateDifference != 0)
+//                node.setHeight(node.getHeight() + startingDateDifference);
+            k++;
         }
-        
-        super.initialised = true;
+                
+        initialised = true;
     }
     
     @Override
     public double calculateLogP() {
-    	if (!super.initialised) {
-    		initialise();
+    	if (!initialised) {
+            initialise();
+            
+            // recompute tree
+//            if (startingDateDifference != 0)
+//                return Double.NEGATIVE_INFINITY;
     	}
-        super.logP = 0;
+        logP = 0;
         // tip date
-        if (super.dist == null) {
-            return super.logP;
+        if (dist == null) {
+            return logP;
         }
         int k = 0;
-        for (final int i  : super.taxonIndex) {
-            if (startingDateProb > 0 && oriDate[k] - super.tree.getNode(i).getDate() == 0)
-                super.logP += java.lang.Math.log(startingDateProb);
+        for (final int i  : taxonIndex) {
+            if (startingDateProb > 0 && oriDate[k] - tree.getNode(i).getDate() == 0)
+                logP += java.lang.Math.log(startingDateProb);
             else
-                super.logP += super.dist.logDensity(oriDate[k] - super.tree.getNode(i).getDate()) + java.lang.Math.log(1 - startingDateProb);
+                logP += dist.logDensity(oriDate[k] - tree.getNode(i).getDate()) + java.lang.Math.log(1 - startingDateProb);
             k++;
         }
-        return super.logP;
+        return logP;
     }
     
     
@@ -147,25 +158,25 @@ public class BBDPrior extends MRCAPrior {
      */
     @Override
     public void init(final PrintStream out) {
-    	if (!super.initialised) {
+    	if (!initialised) {
     		initialise();
     	}
-        if (super.dist != null) {
+        if (dist != null) {
             out.print("logP(deltaTime(" + getID() + "))\t");
         }
-        for (final int i : super.taxonIndex) {
+        for (final int i : taxonIndex) {
             out.print("deltaTime(" + tree.getTaxaNames()[i] + ")\t");
         }
     }
     
     @Override
     public void log(final int sample, final PrintStream out) {
-        if (super.dist != null) {
+        if (dist != null) {
             out.print(getCurrentLogP() + "\t");
         }
         int k = 0;
-        for (final int i : super.taxonIndex) {
-            out.print(oriDate[k++] - super.tree.getNode(i).getDate() + "\t");
+        for (final int i : taxonIndex) {
+            out.print(oriDate[k++] - tree.getNode(i).getDate() + "\t");
         }
     }
     

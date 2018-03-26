@@ -40,12 +40,16 @@ public class BBDPriorTest extends TestCase {
         TaxonSet set = new TaxonSet();
         set.initByName("taxon", human, "taxon", bonobo, "taxon", chimp);
         Exponential exp = new Exponential();
-        prior.initByName("tree", tree, "taxonset", set, "distr", exp, "", 0);
+        prior.initByName("tree", tree, "taxonset", set, "distr", exp, "startDateProbability", 0.01);
         
         assertTrue(tree.hasDateTrait());
         
         double logP = prior.calculateLogP();
         assertEquals(Double.NEGATIVE_INFINITY, logP, BEASTTestCase.PRECISION);
     }
-
+    
+    @Test
+    public void testBBDTimePriorWithOperators() throws Exception {
+        
+    }
 }

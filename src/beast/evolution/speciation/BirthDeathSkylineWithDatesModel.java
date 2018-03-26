@@ -59,7 +59,7 @@ public class BirthDeathSkylineWithDatesModel extends BirthDeathSkylineModel {
                     samplingTimes.setValue(i, maxdate - rhoSamplingDates.getValue(i));
                 }
                 
-                rhoSamplingTimes.set(samplingTimes);
+                rhoSamplingTimes.setValue(samplingTimes, this);
             }
         }
         
