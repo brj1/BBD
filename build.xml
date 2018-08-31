@@ -1,5 +1,5 @@
 <!-- from https://gist.github.com/tgvaughan/9826563 -->
-<project default="build" basedir=".">
+<project name="BBD" default="build" basedir=".">
 
     <!-- Source, JUnit test code and jar library locations. -->
     <property name="src" location="src"/>
@@ -198,7 +198,7 @@
 
     <!-- Create BEAST 2 package -->
     <target name="build" depends="compile,copy-resources">
-        <property name="fullName" value="${projName}.v${projVersion}"/>
+        <property name="fullName" value="${projName}.addon"/>
 
         <mkdir dir="${pack}"/>
         <mkdir dir="${pack}/examples"/>
