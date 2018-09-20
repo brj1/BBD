@@ -40,8 +40,8 @@ suppressInputs='beast.evolution.speciation.BirthDeathSkylineWithDatesModel.inter
 		<parameter name="reproductiveNumber" id="reproductiveNumber.t:$(n)" value="2" lower="0." dimension ="10" upper="Infinity"/>
 		<parameter name="becomeUninfectiousRate" id="becomeUninfectiousRate.t:$(n)" value="1." lower="0." upper="Infinity" dimension ="1"/>
 		<parameter name="samplingProportion" id="samplingProportion.t:$(n)" value="0.01"/> 
-		<parameter name="rho" id="rho.t:$(n)" value="0.01 0.1" lower="0." upper="1."/> 
-		<parameter name="rhoSamplingDates" id="rhoSamplingDates.t:$(n)" value="0.0 1.0"/> 
+		<parameter name="rho" id="rho.t:$(n)" value="0.01" lower="0." upper="1."/> 
+		<parameter name="rhoSamplingDates" id="rhoSamplingDates.t:$(n)" value="0.0"/> 
         <reverseTimeArrays spec='parameter.BooleanParameter' value='false false false true false'/>
 	</BirthDeathSkylineWithDatesModel>
 

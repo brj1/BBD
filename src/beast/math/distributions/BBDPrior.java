@@ -39,11 +39,13 @@ import beast.evolution.tree.Node;
  */
 @Description("Blind dating prior")
 public class BBDPrior extends MRCAPrior {
-    public final Input<RealParameter> startingDateProbInput = new Input<>("startDateProbability", "the probability that the starting date is correct");
+    public final Input<RealParameter> startingDateProbInput = new Input<>("collectedDateProbability", "the probability that the collected date is correct");
 //    public final Input<Double> startingDateDifferenceInput = new Input<>("startDateDifference", "the starting value");
+    public final Input<Double> collectedDateInput = new Input<>("collectedDate", "the collected date");
     
     double[] oriDate;
     double startingDateProb;
+    double collectedDate;
 //    double startingDateDifference;
 
     @Override
@@ -67,6 +69,11 @@ public class BBDPrior extends MRCAPrior {
             startingDateProb = 0;
         else
             startingDateProb = startingDateProbInput.get().getValue();
+        
+        if (collectedDateInput.get() == null)
+            collectedDate = Double.NaN;
+        else
+            collectedDate = collectedDateInput.get();
         
 //        if (startingDateDifferenceInput.get() == null)
 //            startingDateDifference = 0;
@@ -118,8 +125,12 @@ public class BBDPrior extends MRCAPrior {
         k = 0;
         for (final int i : taxonIndex) {
             Node node = tree.getNode(i);
-            oriDate[k] = node.getDate();
-//           if (startingDateDifference != 0)
+            if (collectedDate == Double.NaN)
+                oriDate[k] = node.getDate();
+            else
+                oriDate[k] = collectedDate;
+            
+//            if (startingDateDifference != 0)
 //                node.setHeight(node.getHeight() + startingDateDifference);
             k++;
         }
@@ -153,9 +164,6 @@ public class BBDPrior extends MRCAPrior {
     }
     
     
-  /**
-     * Loggable interface implementation follows *
-     */
     @Override
     public void init(final PrintStream out) {
     	if (!initialised) {
@@ -170,7 +178,7 @@ public class BBDPrior extends MRCAPrior {
     }
     
     @Override
-    public void log(final int sample, final PrintStream out) {
+    public void log(final long sample, final PrintStream out) {
         if (dist != null) {
             out.print(getCurrentLogP() + "\t");
         }
@@ -180,9 +188,6 @@ public class BBDPrior extends MRCAPrior {
         }
     }
     
-    /**
-     * Valuable interface implementation follows, first dimension is log likelihood, second the time *
-     */
     @Override
     public int getDimension() {
         return 1;
