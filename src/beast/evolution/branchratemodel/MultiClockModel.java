@@ -2,28 +2,28 @@ package beast.evolution.branchratemodel;
 
 import beast.core.Input;
 import beast.core.parameter.IntegerParameter;
+import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.Tree;
-import java.util.ArrayList;
 
 /**
  * Ignores meanRateInput
  * @author Bradley R. Jones
  */
-public class MultiClockModel implements BranchRateModel {
-    public Input<BranchRateModel> model1Input =
-            new Input<>("clockModel1", "the first clock model.", Input.Validate.REQUIRED);
-    public Input<BranchRateModel> model2Input =
-            new Input<>("clockModel2", "the second clock model.", Input.Validate.REQUIRED);            
+public class MultiClockModel extends BranchRateModel.Base {
+    public Input<RealParameter> rate2Input = 
+            new Input<>("clock.rate2", "the clock rate for the second model.", Input.Validate.REQUIRED);
     public Input<IntegerParameter> indicatorsInput =
             new Input<>("indicators", "the branch model indicators.", Input.Validate.REQUIRED);
     final public Input<Tree> treeInput =
             new Input<>("tree", "the tree this relaxed clock is associated with.", Input.Validate.REQUIRED);
     
-    private ArrayList<BranchRateModel> models = new ArrayList<>();
     private Tree m_tree;
+    private RealParameter rate1;
+    private RealParameter rate2;
 
+    @Override
     public void initAndValidate() {
         m_tree = treeInput.get();
         IntegerParameter indicators = indicatorsInput.get();
@@ -39,24 +39,22 @@ public class MultiClockModel implements BranchRateModel {
             indicators.setDimension(m_tree.getNodeCount() - 1);
         }
         
-        if (model1Input.get() == null) {
-            model1Input.set(new StrictClockModel());
-        }
-        models.add(model1Input.get());
-                
-        if (model2Input.get() != null) {
-            model2Input.set(new StrictClockModel());
-        }        
-        models.add(model2Input.get());
+        if (meanRateInput.get() == null)
+            meanRateInput.set(1);
+        
+        rate1 = meanRateInput.get();
+        rate2 = rate2Input.get();
     }
 
     @Override
     public double getRateForBranch(Node node) {
         IntegerParameter indicators = indicatorsInput.get();
         int modelIndex = indicators.getValue(getNr(node));
-        BranchRateModel model = models.get(modelIndex);
         
-        return model.getRateForBranch(node);
+        if (modelIndex == 0)
+            return rate1.getValue();
+        else
+            return rate2.getValue();
     }
     
     private int getNr(Node node) {
