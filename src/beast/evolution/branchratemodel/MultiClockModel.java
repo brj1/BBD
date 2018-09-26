@@ -1,9 +1,7 @@
 package beast.evolution.branchratemodel;
 
 import beast.core.Input;
-import beast.core.parameter.BooleanParameter;
 import beast.core.parameter.IntegerParameter;
-import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.Tree;
@@ -13,7 +11,7 @@ import java.util.ArrayList;
  * Ignores meanRateInput
  * @author Bradley R. Jones
  */
-public class MultiClock implements BranchRateModel {
+public class MultiClockModel implements BranchRateModel {
     public Input<BranchRateModel> model1Input =
             new Input<>("clockModel1", "the first clock model.", Input.Validate.REQUIRED);
     public Input<BranchRateModel> model2Input =
