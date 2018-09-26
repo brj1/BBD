@@ -1,0 +1,45 @@
+<beast version='2.0'
+       namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution:beast.math.distributions'>
+
+     <!-- Clock models -->
+    <mergewith point='clockModelTemplates'>
+       
+        <!-- MultiClockModel -->
+        <subtemplate id='MultiClock' class='beast.evolution.branchratemodel.MultiClockModel'
+                     mainid='MultitClock.c:$(n)'>
+            <![CDATA[
+                <input spec='MultiClockModel' id='MultiClock.c:$(n)' tree='@Tree.t:$(n)'>
+                    <branchRateModel name="clockModel1"/>
+                    <branchRateModel name="clockModel2"/>
+                    <parameter spec='parameter.IntegerParameter' name='indicators' id='Indicators.c:$(n)' value="0"/>
+                </input>
+
+        <operator id="IndicatorsRandomWalk.c:$(n)" spec="IntRandomWalkOperator" weight="15" windowSize="1" parameter="@Indicators.c:$(n)"/>
+
+	<distribution idref="prior">
+                <if cond='inlikelihood(MultiClock.c:$(n))'>
+		    <prior id="IndicatorsChangesPrior.c:$(n)" name="distribution">
+                        <x id="IndicatorsChanges.c:$(n)" spec="beast.core.util.Sum" arg="@Indicators.c:$(n)"/>
+                        <distr spec='beast.math.distributions.Poisson'>
+                          <lambda spec='parameter.RealParameter' estimate='false' value='0.6931471805599453'/>
+                        </distr>
+        	    </prior>
+                </if>
+	</distribution>
+]]>
+            <connect srcID='Indicators.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(Indicators.c:$(n))'/>
+
+            <connect srcID='IndicatorsRandomWalk.c:$(n)' targetID='mcmc' inputName='operator'
+                     if='inlikelihood(Indicators.c:$(n))'>Change indicator of multi clock model of partition c:$(n)
+            </connect>
+ 
+            <connect srcID='Tree.t:$(n)' targetID='RandomLocalClock.c:$(n)' inputName='tree' if='inlikelihood(RandomLocalClock.c:$(n))'/>
+
+            <connect srcID='Indicators.c:$(n)' targetID='tracelog' inputName='log'
+                     if='inlikelihood(Indicators.c:$(n))'/>
+ 
+             <connect srcID='MultiClock.c:$(n)' targetID='TreeWithMetaDataLogger.t:$(n)'
+                     inputName='branchratemodel' if='inposterior(MultiClock.c:$(n))'/>
+        </subtemplate>    
+    </mergewith>
