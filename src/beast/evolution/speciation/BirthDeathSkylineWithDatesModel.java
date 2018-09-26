@@ -67,23 +67,6 @@ public class BirthDeathSkylineWithDatesModel extends BirthDeathSkylineModel {
     }
     
     @Override
-    public Double preCalculation(TreeInterface tree) {
-        if (rhoSamplingDates != null) {
-            Node root = tree.getRoot();
-            double maxdate = root.getDate() + root.getHeight();
-            RealParameter samplingTimes = new RealParameter(rhoSamplingDates.getValues());
-            
-            for (int i = 0; i < rhoSamplingDates.getDimension(); i++) {
-                samplingTimes.setValue(i, maxdate - rhoSamplingDates.getValue(i));
-            }
-                
-            rhoSamplingTimes.set(samplingTimes);
-        }
-        
-        return super.preCalculation(tree);
-    }
-    
-    @Override
     public void getChangeTimes(List<Double> changeTimes, RealParameter intervalTimes, int numChanges, boolean relative, boolean reverse) {
         changeTimes.clear();
 
