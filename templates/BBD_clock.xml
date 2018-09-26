@@ -43,3 +43,4 @@
                      inputName='branchratemodel' if='inposterior(MultiClock.c:$(n))'/>
         </subtemplate>    
     </mergewith>
+</beast>
