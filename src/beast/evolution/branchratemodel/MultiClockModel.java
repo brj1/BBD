@@ -34,9 +34,9 @@ public class MultiClockModel extends BranchRateModel.Base {
         if (indicators.upperValueInput.get() == null || indicators.upperValueInput.get() != 1) {
             indicators.upperValueInput.set(1);
         }
-        if (indicators.getDimension() != m_tree.getNodeCount() - 1) {
-            Log.warning.println("MuliClockModel::Setting dimension of indicators to " + (m_tree.getNodeCount() - 1));
-            indicators.setDimension(m_tree.getNodeCount() - 1);
+        if (indicators.getDimension() != m_tree.getNodeCount()) {
+            Log.warning.println("MuliClockModel::Setting dimension of indicators to " + (m_tree.getNodeCount()));
+            indicators.setDimension(m_tree.getNodeCount());
         }
         
         if (meanRateInput.get() == null)
