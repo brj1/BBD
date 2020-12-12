@@ -3,12 +3,13 @@
 
     <!-- Source, JUnit test code and jar library locations. -->
     <property name="src" location="src"/>
-    <property name="test" location="test"/>
+    <property name="test" location="src"/>
     <property name="lib" location="lib"/>
 
     <!-- Location to check for local copy of beast2 repository -->
     <property name="beastDir" location="../beast2"/>
     <property name="bdskyDir" location="../bdsky"/>
+    <property name="multiDir" location="../MultiTypeTree"/>
 
     <!-- BEAST 2 currently uses Java 1.8 -->
     <property name="sourceVersion" value="1.8"/>
@@ -63,6 +64,7 @@
     <target name="find-beast" depends="init">
         <available file="${beastDir}" property="localBeastAvailable"/>
         <available file="${bdskyDir}" property="localBdskyAvailable"/>
+        <available file="${multiDir}" property="localMultiAvailable"/>
     </target>
 
     <target name="build-remote-beast" depends="find-beast" unless="localBeastAvailable">
@@ -116,7 +118,7 @@
     <target name="build-local-bdsky" depends="find-beast" if="localBdskyAvailable">
         <echo>Compiling against beast2 source found at ${bdskyDir}.</echo>
 
-        <property name="build-bdsky" location="build-bbdsky"/>
+        <property name="build-bdsky" location="build-bdsky"/>
         <mkdir dir="${build-bdsky}"/>
 
         <javac target="${targetVersion}" source="${sourceVersion}"
@@ -136,7 +138,30 @@
         <delete dir="${build-bdsky}" />
     </target>
     
-    <target name="build-beast" depends="build-local-beast,build-remote-beast,build-local-bdsky"/>
+      <target name="build-local-multi" depends="find-beast" if="localMultiAvailable">
+        <echo>Compiling against beast2 source found at ${multiDir}.</echo>
+
+        <property name="build-multi" location="build-multi"/>
+        <mkdir dir="${build-multi}"/>
+
+        <javac target="${targetVersion}" source="${sourceVersion}"
+            srcdir="${multiDir}/src"
+            destdir="${build-multi}" includeantruntime="false">
+            <classpath>
+                <pathelement path="${classpath}"/>
+                <fileset dir="${multiDir}/lib" includes="*.jar"/>
+                <fileset dir="${build-lib}" includes="*.jar"/>
+            </classpath>
+        </javac>
+        <jar jarfile="${build-lib}/MultiTypeTree.jar" basedir="${build-multi}" />
+        <copy todir="${build-lib}">
+            <fileset dir="${multiDir}/lib" includes="*.jar"/>
+        </copy>
+
+        <delete dir="${build-multi}" />
+    </target>
+    
+    <target name="build-beast" depends="build-local-beast,build-remote-beast,build-local-bdsky,build-local-multi"/>
 
     <!-- Compile -->
     <target name="compile" depends="build-beast">

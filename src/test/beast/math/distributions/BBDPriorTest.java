@@ -9,13 +9,15 @@ import beast.math.distributions.BBDPrior;
 import beast.math.distributions.Exponential;
 import beast.util.TreeParser;
 import junit.framework.TestCase;
-import test.beast.BEASTTestCase;
 
 public class BBDPriorTest extends TestCase {
 
     @Test
+    /*
+    Current DOES NOT work
+    */
     public void testBBDTimePrior() throws Exception {
-        Alignment data = BEASTTestCase.getAlignment();
+        Alignment data = new Alignment();
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
                 "newick", "((human:0.024003,(chimp:0.010772,bonobo:0.010772):0.013231):0.012035," +
@@ -45,7 +47,7 @@ public class BBDPriorTest extends TestCase {
         assertTrue(tree.hasDateTrait());
         
         double logP = prior.calculateLogP();
-        assertEquals(Double.NEGATIVE_INFINITY, logP, BEASTTestCase.PRECISION);
+        assertEquals(Double.NEGATIVE_INFINITY, logP, 0);
     }
     
     @Test

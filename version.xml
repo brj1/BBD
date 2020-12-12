@@ -1,5 +1,6 @@
-<addon name="BBD" version="1.0.5">
-	<depends on="BEAST" atleast="2.5.0"/>
-	<depends on="BDSKY" atleast="1.4.0"/>
+<addon name="BBD" version="1.0.6">
+	<depends on="BEAST" atleast="2.6.3"/>
+	<depends on="BDSKY" atleast="1.4.6"/>
+        <depends on="MultiTypeTree" atleast="7.0.2"/>
 </addon>
         

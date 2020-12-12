@@ -11,7 +11,7 @@ import beast.evolution.tree.Tree;
  * Ignores meanRateInput
  * @author Bradley R. Jones
  */
-public class MultiClockModel extends BranchRateModel.Base {
+public class DualClockModel extends BranchRateModel.Base {
     public Input<RealParameter> rate2Input = 
             new Input<>("clock.rate2", "the clock rate for the second model.", Input.Validate.REQUIRED);
     public Input<IntegerParameter> indicatorsInput =
