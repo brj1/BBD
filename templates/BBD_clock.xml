@@ -12,13 +12,9 @@
                             beast.evolution.branchratemodel.MultiClockModel.tree
                             '>
             <![CDATA[
-                <input spec='MultiClockModel' id='MultiClock.c:$(n)' tree='@Tree.t:$(n)'>
+                <input spec='MultiStrictClockModel' id='MultiClock.c:$(n)' tree='@Tree.t:$(n)'>
                     <clock.rate id='clockRate.c:$(n)' spec='parameter.RealParameter' value='1.0' estimate='true'/>
-                    <clock.rate2 id='clockRate2.c:$(n)' spec='parameter.RealParameter' value='1.0' estimate="true"/>
-                    <parameter spec='parameter.IntegerParameter' name='indicators' id='Indicators.c:$(n)' value="0" estimate="true"/>
                 </input>
-
-        <operator id="IndicatorsRandomWalk.c:$(n)" spec="IntRandomWalkOperator" weight="15" windowSize="1" parameter="@Indicators.c:$(n)"/>
 
         <operator id='StrictClockRateScaler.c:$(n)' spec='ScaleOperator' scaleFactor="0.75" weight="3" parameter='@clockRate.c:$(n)'/>
 
@@ -26,23 +22,11 @@
             <up idref="clockRate.c:$(n)"/>
             <down idref="Tree.t:$(n)"/>
 	</upDownOperator>
-                                
-        <operator id='StrictClockRate2Scaler.c:$(n)' spec='ScaleOperator' scaleFactor="0.75" weight="3" parameter='@clockRate2.c:$(n)'/>
-
-	 <prior id="IndicatorsChangesPrior.c:$(n)" name="distribution">
-            <x id="IndicatorsChanges.c:$(n)" spec="beast.core.util.Sum" arg="@Indicators.c:$(n)"/>
-                <distr spec='beast.math.distributions.Poisson'>
-                <lambda spec='parameter.RealParameter' estimate='false' value='0.6931471805599453'/>
-            </distr>
-         </prior>
-        
+                              
         <prior id='ClockPrior.c:$(n)' x='@clockRate.c:$(n)'><distr spec="beast.math.distributions.Uniform" upper='Infinity'/></prior>
-        <prior id='ClockPrior2.c:$(n)' x='@clockRate2.c:$(n)'><distr spec="beast.math.distributions.Uniform" upper='Infinity'/></prior>
         
 	<logger idref="tracelog">
-            <log idref="Indicators.c:$(n)"/>
             <log idref="clockRate.c:$(n)"/>
-            <log idref="clockRate2.c:$(n)"/>
 	</logger>
 ]]>
             <connect srcID='clockRate.c:$(n)' targetID='state' inputName='stateNode'
@@ -59,40 +43,13 @@
                      if='nooperator(FixMeanRatesOperator) and inlikelihood(clockRate.c:$(n)) and inlikelihood(Tree.t:$(n)) and Tree.t:$(n)/estimate=true and clockRate.c:$(n)/estimate=true'>
                 Scale up substitution rate c:$(n) and scale down tree t:($n)
             </connect>
-
-            <connect srcID='clockRate2.c:$(n)' targetID='state' inputName='stateNode'
-                     if='inlikelihood(clockRate2.c:$(n)) and clockRate2.c:$(n)/estimate=true'/>
-            <connect srcID='ClockPrior2.c:$(n)' targetID='prior' inputName='distribution'
-                     if='inlikelihood(clockRate2.c:$(n)) and clockRate2.c:$(n)/estimate=true'>substitution rate (2) of
-                partition c:$(n)
-            </connect>
-            <connect srcID='StrictClockRate2Scaler.c:$(n)' targetID='mcmc' inputName='operator'
-                     if='inlikelihood(clockRate2.c:$(n)) and clockRate2.c:$(n)/estimate=true'>Scale substitution rate (2) of
-                partition c:$(n)
-            </connect>
-
-            <connect srcID='Indicators.c:$(n)' targetID='state' inputName='stateNode'
-                     if='inlikelihood(Indicators.c:$(n))'/>
-            <connect srcID='IndicatorsChangesPrior.c:$(n)' targetID='prior' inputName='distribution'
-                     if='inlikelihood(Indicators.c:$(n)) and Indicators.c:$(n)/estimate=true'>
-                Indicator change of partition c:$(n)
-            </connect>
-            <connect srcID='IndicatorsRandomWalk.c:$(n)' targetID='mcmc' inputName='operator'
-                     if='inlikelihood(Indicators.c:$(n)) and Indicators.c:$(n)/estimate=true'>Change indicator of multi clock model of partition c:$(n)
-            </connect>
  
             <connect srcID='Tree.t:$(n)' targetID='MultiClock.c:$(n)' inputName='tree' if='inlikelihood(MultiClock.c:$(n))'/>
-
-            <connect srcID='Indicators.c:$(n)' targetID='tracelog' inputName='log'
-                     if='inlikelihood(Indicators.c:$(n))'/>
             
             <connect srcID='clockRate.c:$(n)' targetID='tracelog' inputName='log'
                      if='inlikelihood(clockRate2.c:$(n))'/>
             
-             <connect srcID='clockRate2.c:$(n)' targetID='tracelog' inputName='log'
-                     if='inlikelihood(clockRate2.c:$(n))'/>
- 
-             <connect srcID='MultiClock.c:$(n)' targetID='TreeWithMetaDataLogger.t:$(n)'
+            <connect srcID='MultiClock.c:$(n)' targetID='TreeWithMetaDataLogger.t:$(n)'
                      inputName='branchratemodel' if='inposterior(MultiClock.c:$(n))'/>
         </subtemplate>    
     </mergewith>
