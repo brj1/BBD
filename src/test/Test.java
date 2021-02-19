@@ -5,16 +5,12 @@
  */
 package test;
 
-import test.beast.evolution.speciation.BirthDeathSkylineWithDatesTest;
-
 /**
  *
  * @author bjones
  */
 public class Test {
     public static void main(String [] args) {
-        BirthDeathSkylineWithDatesTest test = new BirthDeathSkylineWithDatesTest();
-        
-        try {test.testDateChange(); } catch (Exception e) {System.out.println(e);}
+
     }
 }
