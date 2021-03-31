@@ -1,5 +1,4 @@
-# BBD: BEAST 2 package for blind-dating
-
+# BBD: BEAST 2 package for extended tip date sampling
 Bradley R. Jones
 
 To install on MAC:
@@ -7,8 +6,8 @@ To install on MAC:
 ```
 cd dist
 unzip BBD.v1.0.4.zip
-mkdir ~/Library/Application\ Support/BEAST/2.4/BBD
-cp -r * ~/Library/Application\ Support/BEAST/2.4/BBD/
+mkdir ~/Library/Application\ Support/BEAST/2.6/BBD
+cp -r * ~/Library/Application\ Support/BEAST/2.6/BBD/
 ```
 
 To add prior in BEAUTi 2:
