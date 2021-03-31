@@ -27,6 +27,8 @@ package beast.evolution.operators;
 import beast.core.Input;
 import beast.evolution.tree.Node;
 import beast.util.Randomizer;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * pads TipDatesRandomWalker so that edges will not haver negative branches
@@ -58,18 +60,42 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalker {
         }
     }
     
-    public int recursiveProposal(double newValue, Node node) {
-        int depth = 0;
+    private double minChildHeight(Node node, Node exChild) {
+        double height = Double.MAX_VALUE;
         
-         if (node.getParent() != null && newValue > node.getParent().getHeight()) { // || newValue < 0.0) {
-            if (reflectValue) {
-                newValue = reflectValue(newValue, 0.0, node.getParent().getHeight());
-            } else {
-                depth = recursiveProposal(newValue, node.getParent()) + 1;
+        for (Node child : node.getChildren()) {
+            if (exChild != child && child.getHeight() < height) {
+                height = child.getHeight();
             }
         }
         
-        node.setHeight(newValue - padding * depth);
+        return height;
+    }
+    
+    public List<Double> recursiveProposal(double newValue, Node node) {
+        List<Double> depth = new ArrayList<>(0);
+        
+         if (node.getParent() != null && newValue > node.getParent().getHeight()) { // || newValue < 0.0) {
+            depth = recursiveProposal(newValue, node.getParent());
+            
+            depth.add(Math.log(minChildHeight(node.getParent(), null) - newValue));
+        }
+         
+        if (node.getParent() != null && (newValue - node.getParent().getHeight()) < padding) {
+            final double parentHeight = node.getParent().getHeight();
+            final double maxHeight = minChildHeight(node.getParent(), node);
+            final double range = (maxHeight < newValue ? maxHeight : newValue) - parentHeight;
+            final double nextShift = Randomizer.nextDouble() * range;
+            
+            if (nextShift > padding) {
+                final double newDepth = -Math.log(range);
+                
+                depth = recursiveProposal(parentHeight - nextShift, node.getParent());
+                depth.add(newDepth);
+            }
+        }
+        
+        node.setHeight(newValue - padding * depth.size());
         
         return depth;
     }
@@ -77,7 +103,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalker {
     @Override
     public double proposal() {
        // randomly select leaf node
-        int i = Randomizer.nextInt(taxonIndices.length);
+        final int i = Randomizer.nextInt(taxonIndices.length);
         Node node = treeInput.get().getNode(taxonIndices[i]);
 
         double newValue = node.getHeight();
@@ -90,8 +116,13 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalker {
         if (newValue == node.getHeight())
             return Double.NEGATIVE_INFINITY;
         
-        int depth = recursiveProposal(newValue, node);
+        List<Double> depthList = recursiveProposal(newValue, node);
+        double depth = 0;
         
-        return depth * depthPenalty;
+        for (double d : depthList) {
+            depth += d;
+        }
+        
+        return (depth == 0) ? 0 : depth +  depthPenalty * depthList.size() * depth / Math.abs(depth);
     }
 }
