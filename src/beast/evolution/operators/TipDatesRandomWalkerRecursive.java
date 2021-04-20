@@ -123,6 +123,11 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalker {
             depth += d;
         }
         
+        //To remove
+        if (depth == 0) {
+            System.err.println("proposal depth: " + depth);
+        }
+        
         return (depth == 0) ? 0 : depth +  depthPenalty * depthList.size() * depth / Math.abs(depth);
     }
 }
