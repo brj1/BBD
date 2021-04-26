@@ -34,8 +34,12 @@ import beast.util.Randomizer;
  */
 public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
     final public Input<Double> paddingInput = new Input<>("padding", "amount of padding to ensure that edges have nonnegative length");
+    final public Input<Boolean> scaleAllInput = new Input<>("scaleAll",
+            "if true, all tips dates are scaled, otherwise one is randomly selected",
+            false);
             
     double padding;
+    boolean scaleAll;
     
     @Override
     public void initAndValidate() {
@@ -48,26 +52,25 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
         } else {
             padding = 1E-4;
         }
+        
+        if (scaleAllInput.get() != null) {
+            scaleAll = scaleAllInput.get();
+        } else {
+            scaleAll = false;
+        }
     }
     
-    @Override
-    public double proposal() {
-       // randomly select leaf node
-        int i = Randomizer.nextInt(taxonIndices.length);
+    private double scaleNode(int i, double scale) {
         Node node = treeInput.get().getNode(taxonIndices[i]);
-
         double value = node.getHeight();
-        double newValue = value;
-        if (useGaussian) {
-            newValue += Randomizer.nextGaussian() * windowSize;
-        } else {
-            newValue += Randomizer.nextDouble() * 2 * windowSize - windowSize;
-        }
+        double newValue = value + scale;
 
-        if (newValue > node.getParent().getHeight() - padding) { // || newValue < 0.0) {
+        if ((node.getParent().getHeight() - newValue) <  padding) {
             if (reflectValue) {
                 newValue = reflectValue(newValue, 0.0, node.getParent().getHeight());
             } else {
+                // To remove
+                System.err.println("proposal out pf bounds");
                 return Double.NEGATIVE_INFINITY;
             }
         }
@@ -76,7 +79,41 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
             return Double.NEGATIVE_INFINITY;
         }
         node.setHeight(newValue);
-
+        
         return 0.0;
+    }
+    
+    @Override
+    public double proposal() {
+        double scale;
+
+        if (useGaussian) {
+            scale = Randomizer.nextGaussian() * windowSize;
+        } else {
+            scale = Randomizer.nextDouble() * 2 * windowSize - windowSize;
+        }
+
+        if (scale == 0) {
+            return Double.NEGATIVE_INFINITY;
+        }
+
+        if (scaleAll) {
+            double ratio = 0;
+            
+            for (int i : taxonIndices) {
+                ratio += scaleNode(i, scale);
+                
+                if (Double.isInfinite(ratio)) {
+                    return ratio;
+                }
+            }
+            
+            return ratio;
+        } else {
+            // randomly select leaf node
+            int i = Randomizer.nextInt(taxonIndices.length);
+
+            return scaleNode(i, scale);
+        }
     }
 }
