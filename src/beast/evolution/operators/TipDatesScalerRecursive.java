@@ -88,7 +88,7 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
             // push close parent node down
             } else if (node.getHeight() > newValue && (parentHeight - node.getHeight()) <= padding) {
                 final double maxHeight = maxChildHeight(parent, node);
-                final double range = Math.min(parentHeight - maxHeight, newValue);
+                final double range = parentHeight -  Math.max(maxHeight, newValue);
                 final double nextShift = Randomizer.nextDouble() * range;
 
                 if (nextShift > padding) {
