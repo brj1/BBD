@@ -40,7 +40,7 @@ import java.util.ListIterator;
  * pads TipDatesRandomWalker so that edges will not haver negative branches
  * @author Bradley R. Jones
  */
-public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
+public class TipDatesScalerRecursive extends TipDatesScalerPadded {
     final public Input<Double> depthPenaltyInput = new Input<>("depthPenalty", "penalty for shifting parent nodes");
                         
     double depthPenalty;
@@ -107,19 +107,10 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
     
     @Override
     public double proposal() {
-        double scale;
+        final double scale = (scaleFactor + (Randomizer.nextDouble() * ((1.0 / scaleFactor) - scaleFactor)));
         List<Double> depthList;
 
-        if (useGaussian) {
-            scale = Randomizer.nextGaussian() * windowSize;
-        } else {
-            scale = Randomizer.nextDouble() * 2 * windowSize - windowSize;
-        }
         
-        if (scale == 0) {
-            return Double.NEGATIVE_INFINITY;
-        }
-
         if (scaleAll) {
             depthList = new ArrayList<>(0);
             List<Node> nodeList = new ArrayList<>(0);
@@ -130,7 +121,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             nodeList.sort(new NodeHeightComp(scale < 0));
             
             for (Node node: nodeList) {
-                double newValue = node.getHeight() + scale;
+                double newValue = node.getHeight() * scale;
                 
                 depthList.addAll(recursiveProposal(newValue, node));
             }
@@ -139,7 +130,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             final int i = Randomizer.nextInt(taxonIndices.length);
             Node node = treeInput.get().getNode(taxonIndices[i]);
 
-            double newValue = node.getHeight() + scale;
+            double newValue = node.getHeight() * scale;
 
             depthList = recursiveProposal(newValue, node);
         }
@@ -150,10 +141,9 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         }
 
         // To remove
-        System.err.println("proposal depth: " + depthList.size() + ", depth: " + depth + ", scale: " + scale);
+        System.err.println("proposal depth: " + depthList.size());
 
-        return (depth == 0) ? 0 : depth + depthPenalty * depthList.size() * depth / Math.abs(depth);
-
+        return (depth == 0) ? -Math.log(scale) : -Math.log(scale) + depth + depthPenalty * depthList.size() * depth / Math.abs(depth);
     }
     
     private class NodeHeightComp implements Comparator<Node> {
@@ -168,30 +158,5 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         public int compare(Node node1, Node node2) {
             return Double.compare(node1.getHeight(), node2.getHeight()) * ascendingFactor;
         }
-    }
-    
-    public static void main(String[] args) {
-        String newick = "((0:1.0,1:1.0)4:1.0,(2:1.0,3:1.0)5:0.5)6:0.0;";
-        TreeParser treeParser = new TreeParser(newick, false, false, true, 0);
-        
-        Taxon tax0 = new Taxon();
-        tax0.setID("0");
-        Taxon tax1 = new Taxon();
-        tax1.setID("1");
-        Taxon tax2 = new Taxon();
-        tax2.setID("2");
-        
-        TaxonSet taxa = new TaxonSet();
-        taxa.initByName("taxon", tax0, "taxon", tax1, "taxon", tax2);
-                
-        TipDatesRandomWalkerRecursive walker = new TipDatesRandomWalkerRecursive();
-        walker.initByName("padding", 0.1, "tree", treeParser, "taxonset", taxa, "windowSize", 2.0, "weight", 1.0);
-        
-        //walker.recursiveProposal(1.5, treeParser.getNode(walker.taxonIndices[0]));
-        //walker.recursiveProposal(0.5, treeParser.getNode(walker.taxonIndices[0]));
-        
-        walker.initByName("scaleAll", true);
-        
-        walker.proposal();
     }
 }
