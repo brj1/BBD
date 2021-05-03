@@ -78,7 +78,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             // push parent node up
             if (parentHeight < newValue) {
                 depth = recursiveProposal(newValue, parent);
-                double range = newValue - maxChildHeight(parent, null);
+                final double range = newValue - maxChildHeight(parent, null);
 
                 depth.add(Math.log(range > padding ? range : 1));
                 
@@ -88,8 +88,10 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             // push close parent node down
             } else if (node.getHeight() > newValue && (parentHeight - node.getHeight()) <= padding) {
                 final double maxHeight = maxChildHeight(parent, node);
-                final double range = parentHeight - Math.min(maxHeight, newValue);
+                final double range = Math.min(parentHeight - maxHeight, newValue);
                 final double nextShift = Randomizer.nextDouble() * range;
+                
+                
 
                 if (nextShift > padding) {
                     final double newDepth = -Math.log(range);
