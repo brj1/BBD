@@ -56,6 +56,9 @@ import javax.swing.JComboBox;
  * @author Bradley R. Jones
  */
 public class BBDPriorInputEditor extends InputEditor.Base {
+    
+    private boolean setDefault = true;
+    
     public BBDPriorInputEditor(BeautiDoc doc) {
         super(doc);
     }
@@ -76,10 +79,7 @@ public class BBDPriorInputEditor extends InputEditor.Base {
 	
         if (!doc.beautiConfig.suppressBEASTObjects.contains("beast.math.distributions.BBDPrior.tree")) {
             doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.tree");
-            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.tipsonly");
             doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.taxonset");
-            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.monophyletic");
-            doc.beautiConfig.suppressBEASTObjects.add("beast.math.distributions.BBDPrior.useOriginate");
         }
         
         Box itemBox = Box.createHorizontalBox();
@@ -249,9 +249,12 @@ public class BBDPriorInputEditor extends InputEditor.Base {
             doc.mcmc.get().setInputValue("operator", operator);
     	}
         
-        prior.isMonophyleticInput.setValue(false, prior);
-        prior.onlyUseTipsInput.setValue(true, prior);
-        prior.useOriginateInput.setValue(false, prior);
+        if (setDefault) {
+            prior.isMonophyleticInput.setValue(false, prior);
+            prior.onlyUseTipsInput.setValue(true, prior);
+            prior.useOriginateInput.setValue(false, prior);
+            setDefault = false;
+        }
     }
     
     Set<Taxon> getTaxonCandidates(MRCAPrior prior) {

@@ -60,7 +60,7 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
         double height = Double.MIN_VALUE;
         
         for (Node child : node.getChildren()) {
-            if (exChild != child && child.getHeight() < height) {
+            if (exChild != child && child.getHeight() > height) {
                 height = child.getHeight();
             }
         }
