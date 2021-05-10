@@ -71,7 +71,11 @@ public class BBDPrior extends MRCAPrior {
             startingDateProb = startingDateProbInput.get().getValue();
         
         if (collectedDateInput.get() == null)
-            collectedDate = Double.NaN;
+            if (onlyUseTips) {
+                collectedDate = Double.NaN;
+            } else {
+                throw new IllegalArgumentException("Must specify collectedDate (offset) when using MRCA or root");
+            }
         else
             collectedDate = collectedDateInput.get();
         
@@ -79,10 +83,7 @@ public class BBDPrior extends MRCAPrior {
 //            startingDateDifference = 0;
 //        else
 //            startingDateDifference = startingDateDifferenceInput.get();
-        
-        if (dist == null)
-            throw new IllegalArgumentException("A distribution must be specified");
-        
+       
         if (startingDateProb > 1 || startingDateProb < 0)
             throw new IllegalArgumentException("Starting Date Probability must be betweem 0 and 1");
         
@@ -140,26 +141,75 @@ public class BBDPrior extends MRCAPrior {
     
     @Override
     public double calculateLogP() {
-    	if (!initialised) {
+        if (!initialised) {
             initialise();
-            
+
             // recompute tree
 //            if (startingDateDifference != 0)
 //                return Double.NEGATIVE_INFINITY;
-    	}
+        }
         logP = 0;
-        // tip date
-        if (dist == null) {
+        if (onlyUseTips) {
+            // tip date
+            if (dist == null) {
+                return logP;
+            }
+            int k = 0;
+
+            for (final int i : taxonIndex) {
+                if (startingDateProb > 0 && oriDate[k] - tree.getNode(i).getDate() == 0) {
+                    logP += java.lang.Math.log(startingDateProb);
+                } else {
+                    logP += dist.logDensity(oriDate[k] - tree.getNode(i).getDate()) + java.lang.Math.log(1 - startingDateProb);
+                }
+                k++;
+            }
+            
             return logP;
+        } else if (useRoot) {
+            // root
+            if (dist != null) {
+                MRCATime = tree.getRoot().getDate();
+                if (startingDateProb > 0 && collectedDate - MRCATime == 0) {
+                    logP += java.lang.Math.log(startingDateProb);
+                } else {
+                    logP += dist.logDensity(collectedDate - MRCATime)  + java.lang.Math.log(1 - startingDateProb);
+                }
+            }
+            return logP;
+        } else {
+            // internal node
+            Node m;
+            if (taxonIndex.length == 1) {
+                isMonophyletic = true;
+                m = tree.getNode(taxonIndex[0]);
+            } else {
+                nseen = 0;
+                m = getCommonAncestor();
+                isMonophyletic = (nseen == 2 * taxonIndex.length - 1);
+            }
+            if (useOriginate) {
+                if (!m.isRoot()) {
+                    MRCATime = m.getParent().getDate();
+                } else {
+                    MRCATime = m.getDate();
+                }
+            } else {
+                MRCATime = m.getDate();
+            }
         }
-        int k = 0;
-        for (final int i  : taxonIndex) {
-            if (startingDateProb > 0 && oriDate[k] - tree.getNode(i).getDate() == 0)
+        if (isMonophyleticInput.get() && !isMonophyletic) {
+            logP = Double.NEGATIVE_INFINITY;
+            return Double.NEGATIVE_INFINITY;
+        }
+        if (dist != null) {
+            if (startingDateProb > 0 && collectedDate - MRCATime == 0) {
                 logP += java.lang.Math.log(startingDateProb);
-            else
-                logP += dist.logDensity(oriDate[k] - tree.getNode(i).getDate()) + java.lang.Math.log(1 - startingDateProb);
-            k++;
+            } else {
+                logP += dist.logDensity(collectedDate - MRCATime) + java.lang.Math.log(1 - startingDateProb);
+            }
         }
+
         return logP;
     }
     
