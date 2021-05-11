@@ -47,6 +47,10 @@ public class BBDPrior extends MRCAPrior {
     double startingDateProb;
     double collectedDate;
 //    double startingDateDifference;
+    
+    public BBDPrior() {
+        onlyUseTipsInput.defaultValue = true;
+    }
 
     @Override
     public void initAndValidate() {
@@ -222,8 +226,12 @@ public class BBDPrior extends MRCAPrior {
         if (dist != null) {
             out.print("logP(deltaTime(" + getID() + "))\t");
         }
-        for (final int i : taxonIndex) {
-            out.print("deltaTime(" + tree.getTaxaNames()[i] + ")\t");
+        if (onlyUseTips) {
+            for (final int i : taxonIndex) {
+                out.print("deltaTime(" + tree.getTaxaNames()[i] + ")\t");
+            }
+        } else {
+            out.print("deltaTime(" + getID() + ")\t");
         }
     }
     
@@ -232,9 +240,35 @@ public class BBDPrior extends MRCAPrior {
         if (dist != null) {
             out.print(getCurrentLogP() + "\t");
         }
-        int k = 0;
-        for (final int i : taxonIndex) {
-            out.print(oriDate[k++] - tree.getNode(i).getDate() + "\t");
+        if (onlyUseTips) {
+            int k = 0;
+            for (final int i : taxonIndex) {
+                out.print(oriDate[k++] - tree.getNode(i).getDate() + "\t");
+            }
+        } else if (useRoot) {
+            out.print(collectedDate - tree.getRoot().getDate() + "\t");
+        } else {
+             // internal node
+            Node m;
+            if (taxonIndex.length == 1) {
+                isMonophyletic = true;
+                m = tree.getNode(taxonIndex[0]);
+            } else {
+                nseen = 0;
+                m = getCommonAncestor();
+                isMonophyletic = (nseen == 2 * taxonIndex.length - 1);
+            }
+            if (useOriginate) {
+                if (!m.isRoot()) {
+                    MRCATime = m.getParent().getDate();
+                } else {
+                    MRCATime = m.getDate();
+                }
+            } else {
+                MRCATime = m.getDate();
+            }
+            
+            out.print(collectedDate - MRCATime + "\t");
         }
     }
     

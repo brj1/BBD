@@ -40,9 +40,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import beast.core.util.Log;
 import beast.core.BEASTInterface;
+import beast.core.Distribution;
 import beast.core.Input;
 import beast.core.Operator;
+import beast.core.State;
 import beast.core.parameter.RealParameter;
+import beast.core.util.CompoundDistribution;
 import beast.evolution.alignment.Taxon;
 import beast.evolution.operators.TipDatesRandomWalker;
 import beast.evolution.operators.TipDatesRandomWalkerPadded;
@@ -249,12 +252,66 @@ public class BBDPriorInputEditor extends InputEditor.Base {
             doc.mcmc.get().setInputValue("operator", operator);
     	}
         
-        if (setDefault) {
-            prior.isMonophyleticInput.setValue(false, prior);
-            prior.onlyUseTipsInput.setValue(true, prior);
-            prior.useOriginateInput.setValue(false, prior);
-            setDefault = false;
+//        if (setDefault) {
+//            prior.isMonophyleticInput.setValue(false, prior);
+//            prior.onlyUseTipsInput.setValue(true, prior);
+//            prior.useOriginateInput.setValue(false, prior);
+//            setDefault = false;
+//        }
+    }
+    
+    public static void customConnector(BeautiDoc doc) {
+        Object o0 = doc.pluginmap.get("prior");
+        if (o0 != null && o0 instanceof CompoundDistribution) {
+            CompoundDistribution p = (CompoundDistribution) o0;
+            for (Distribution p0 : p.pDistributions.get()) {
+                if (p0 instanceof MRCAPrior) {
+                    MRCAPrior prior = (MRCAPrior) p0;
+                    if (prior.treeInput.get() != null) {
+                        boolean isInState = false;
+                        for (BEASTInterface o : prior.treeInput.get().getOutputs()) {
+                            if (o instanceof State) {
+                                isInState = true;
+                                break;
+                            }
+                        }
+                        if (!isInState) {
+                            doc.disconnect(prior, "prior", "distribution");
+                            doc.disconnect(prior, "tracelog", "log");
+                            if (prior.onlyUseTipsInput.get()) {
+                                TipDatesRandomWalker operator = null;
+                                TaxonSet taxonset = prior.taxonsetInput.get();
+
+                                // We cannot rely on the operator ID created in enableTipSampling()
+                                // since the taxoneset name may have changed.
+                                // However, if there is an TipDatesRandomWalker with taxonset as input, we want to remove it.
+                                for (BEASTInterface o : taxonset.getOutputs()) {
+                                    if (o instanceof TipDatesRandomWalker) {
+                                        operator = (TipDatesRandomWalker) o;
+                                    }
+                                }
+
+                                if (operator == null) {
+                                    // should never happen
+                                    return;
+                                }
+
+                                // remove from list of operators
+                                Object o = doc.mcmc.get().getInput("operator");
+                                if (o instanceof Input<?>) {
+                                    Input<List<Operator>> operatorInput = (Input<List<Operator>>) o;
+                                    List<Operator> operators = operatorInput.get();
+                                    operators.remove(operator);
+                                }
+                            }
+                            doc.unregisterPlugin(prior);
+                            return;
+                        }
+                    }
+                }
+            }
         }
+
     }
     
     Set<Taxon> getTaxonCandidates(MRCAPrior prior) {
@@ -278,4 +335,5 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         }       
         return candidates;
     }
+
 }
