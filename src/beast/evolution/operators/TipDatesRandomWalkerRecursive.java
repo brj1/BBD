@@ -37,13 +37,15 @@ import java.util.Comparator;
 import java.util.ListIterator;
 
 /**
- * pads TipDatesRandomWalker so that edges will not haver negative branches
+ * pads TipDatesRandomWalker so that edges will not haver negative branches and
+ * allows parent nodes to move
  * @author Bradley R. Jones
  */
 public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
     final public Input<Double> depthPenaltyInput = new Input<>("depthPenalty", "penalty for shifting parent nodes");
                         
     double depthPenalty;
+    TipDateRecursiveShifter shifter;
     
     @Override
     public void initAndValidate() {
@@ -54,55 +56,8 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         } else {
             depthPenalty = 0;
         }
-    }
-    
-    private double maxChildHeight(Node node, Node exChild) {
-        double height = Double.MIN_VALUE;
         
-        for (Node child : node.getChildren()) {
-            if (exChild != child && child.getHeight() > height) {
-                height = child.getHeight();
-            }
-        }
-        
-        return height;
-    }
-    
-    private List<Double> recursiveProposal(double newValue, Node node) {
-        List<Double> depth = new ArrayList<>(0);
-        final Node parent = node.getParent();
-        
-        if (parent != null) {
-            final double parentHeight = parent.getHeight();
-            
-            // push parent node up
-            if (parentHeight < newValue) {
-                depth = recursiveProposal(newValue, parent);
-                final double range = newValue - maxChildHeight(parent, null);
-
-                depth.add(Math.log(range > padding ? range : 1));
-                
-                node.setHeight(newValue - padding * depth.size());
-                
-                return depth;
-            // push close parent node down
-            } else if (node.getHeight() > newValue && (parentHeight - node.getHeight()) <= padding) {
-                final double maxHeight = maxChildHeight(parent, node);
-                final double range = parentHeight -  Math.max(maxHeight, newValue);
-                final double nextShift = Randomizer.nextDouble() * range;
-                
-                if (nextShift > padding) {
-                    final double newDepth = -Math.log(range);
-
-                    depth = recursiveProposal(parentHeight - nextShift, parent);
-                    depth.add(newDepth);
-                }
-            }
-        }
-        
-        node.setHeight(newValue);
-        
-        return depth;
+        shifter = new TipDateRecursiveShifter(padding);
     }
     
     @Override
@@ -132,7 +87,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             for (Node node: nodeList) {
                 double newValue = node.getHeight() + scale;
                 
-                depthList.addAll(recursiveProposal(newValue, node));
+                depthList.addAll(shifter.recursiveProposal(newValue, node));
             }
         } else {
             // randomly select leaf node
@@ -141,7 +96,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
 
             double newValue = node.getHeight() + scale;
 
-            depthList = recursiveProposal(newValue, node);
+            depthList = shifter.recursiveProposal(newValue, node);
         }
         double depth = 0;
 
@@ -187,11 +142,12 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         TipDatesRandomWalkerRecursive walker = new TipDatesRandomWalkerRecursive();
         walker.initByName("padding", 0.1, "tree", treeParser, "taxonset", taxa, "windowSize", 2.0, "weight", 1.0);
         
-        //walker.recursiveProposal(1.5, treeParser.getNode(walker.taxonIndices[0]));
-        //walker.recursiveProposal(0.5, treeParser.getNode(walker.taxonIndices[0]));
+        List<Double> hastings_rec = walker.shifter.recursiveProposal(1.5, treeParser.getNode(walker.taxonIndices[0]));
+        hastings_rec = walker.shifter.recursiveProposal(0, treeParser.getNode(walker.taxonIndices[0]));
+        hastings_rec = walker.shifter.recursiveProposal(0.5, treeParser.getNode(walker.taxonIndices[0]));
         
-        walker.initByName("scaleAll", true);
+//        walker.initByName("scaleAll", true);
         
-        walker.proposal();
+        double hastings = walker.proposal();
     }
 }
