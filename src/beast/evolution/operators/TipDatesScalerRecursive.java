@@ -37,13 +37,15 @@ import java.util.Comparator;
 import java.util.ListIterator;
 
 /**
- * pads TipDatesRandomWalker so that edges will not haver negative branches
+ * pads TipDatesRandomScaler so that edges will not have negative branches and
+ * allows parent nodes to move
  * @author Bradley R. Jones
  */
 public class TipDatesScalerRecursive extends TipDatesScalerPadded {
     final public Input<Double> depthPenaltyInput = new Input<>("depthPenalty", "penalty for shifting parent nodes");
                         
     double depthPenalty;
+    TipDateRecursiveShifter shifter;
     
     @Override
     public void initAndValidate() {
@@ -54,55 +56,8 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
         } else {
             depthPenalty = 0;
         }
-    }
-    
-    private double maxChildHeight(Node node, Node exChild) {
-        double height = Double.MIN_VALUE;
         
-        for (Node child : node.getChildren()) {
-            if (exChild != child && child.getHeight() > height) {
-                height = child.getHeight();
-            }
-        }
-        
-        return height;
-    }
-    
-    private List<Double> recursiveProposal(double newValue, Node node) {
-        List<Double> depth = new ArrayList<>(0);
-        final Node parent = node.getParent();
-        
-        if (parent != null) {
-            final double parentHeight = parent.getHeight();
-            
-            // push parent node up
-            if (parentHeight < newValue) {
-                depth = recursiveProposal(newValue, parent);
-                double range = newValue - maxChildHeight(parent, null);
-
-                depth.add(Math.log(range > padding ? range : 1));
-                
-                node.setHeight(newValue - padding * depth.size());
-                
-                return depth;
-            // push close parent node down
-            } else if (node.getHeight() > newValue && (parentHeight - node.getHeight()) <= padding) {
-                final double maxHeight = maxChildHeight(parent, node);
-                final double range = parentHeight -  Math.max(maxHeight, newValue);
-                final double nextShift = Randomizer.nextDouble() * range;
-
-                if (nextShift > padding) {
-                    final double newDepth = -Math.log(range);
-
-                    depth = recursiveProposal(parentHeight - nextShift, parent);
-                    depth.add(newDepth);
-                }
-            }
-        }
-        
-        node.setHeight(newValue);
-        
-        return depth;
+        shifter = new TipDateRecursiveShifter(padding);
     }
     
     @Override
@@ -123,7 +78,7 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
             for (Node node: nodeList) {
                 double newValue = node.getHeight() * scale;
                 
-                depthList.addAll(recursiveProposal(newValue, node));
+                depthList.addAll(shifter.recursiveProposal(newValue, node));
             }
         } else {
             // randomly select leaf node
@@ -132,7 +87,7 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
 
             double newValue = node.getHeight() * scale;
 
-            depthList = recursiveProposal(newValue, node);
+            depthList = shifter.recursiveProposal(newValue, node);
         }
         double depth = 0;
 
