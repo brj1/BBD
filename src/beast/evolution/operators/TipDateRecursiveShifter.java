@@ -45,7 +45,7 @@ public class TipDateRecursiveShifter {
                 depth = recursiveProposal(newValue, parent);
                 final double range = newValue - maxChildHeight(parent, null);
 
-                depth.add(range > padding ? Math.log(range) : 0);
+                depth.add(range > padding ? -Math.log(range) : 0);
                 
                 node.setHeight(newValue - padding * depth.size());
                 
@@ -57,7 +57,7 @@ public class TipDateRecursiveShifter {
                 final double nextShift = Randomizer.nextDouble() * range;
                 
                 if (nextShift > padding) {
-                    final double newDepth = -Math.log(range);
+                    final double newDepth = Math.log(range);
 
                     depth = recursiveProposal(parentHeight - nextShift, parent);
                     depth.add(newDepth);
