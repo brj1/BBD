@@ -41,7 +41,7 @@ public class TipDateRecursiveShifter {
             final double parentHeight = parent.getHeight();
             
             // push parent node up
-            if (parentHeight < newValue) {
+            if (parentHeight - newValue < padding) {
                 depth = recursiveProposal(newValue, parent);
                 final double range = newValue - maxChildHeight(parent, null);
 
