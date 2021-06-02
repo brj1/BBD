@@ -42,20 +42,11 @@ import java.util.ListIterator;
  * @author Bradley R. Jones
  */
 public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
-    final public Input<Double> depthPenaltyInput = new Input<>("depthPenalty", "penalty for shifting parent nodes");
-                        
-    double depthPenalty;
     TipDateRecursiveShifter shifter;
     
     @Override
     public void initAndValidate() {
         super.initAndValidate();
-        
-        if (depthPenaltyInput.get() != null) {
-            depthPenalty = depthPenaltyInput.get();
-        } else {
-            depthPenalty = 0;
-        }
         
         shifter = new TipDateRecursiveShifter(padding);
     }
@@ -104,8 +95,10 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             depth += d;
         }
 
-        return (depth == 0) ? 0 : depth + depthPenalty * depthList.size() * depth / Math.abs(depth);
+        // To remove
+        System.err.println("proposal depth: " + depthList.size() + ", depth: " + depth + ", scale: " + scale);
 
+        return (depth == 0) ? 0 : depth;
     }
     
     private class NodeHeightComp implements Comparator<Node> {
