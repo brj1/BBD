@@ -95,9 +95,6 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             depth += d;
         }
 
-        // To remove
-        System.err.println("proposal depth: " + depthList.size() + ", depth: " + depth + ", scale: " + scale);
-
         return (depth == 0) ? 0 : depth;
     }
     
