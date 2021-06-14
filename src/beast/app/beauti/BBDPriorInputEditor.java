@@ -265,8 +265,8 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         if (o0 != null && o0 instanceof CompoundDistribution) {
             CompoundDistribution p = (CompoundDistribution) o0;
             for (Distribution p0 : p.pDistributions.get()) {
-                if (p0 instanceof MRCAPrior) {
-                    MRCAPrior prior = (MRCAPrior) p0;
+                if (p0 instanceof BBDPrior) {
+                    BBDPrior prior = (BBDPrior) p0;
                     if (prior.treeInput.get() != null) {
                         boolean isInState = false;
                         for (BEASTInterface o : prior.treeInput.get().getOutputs()) {
@@ -314,7 +314,7 @@ public class BBDPriorInputEditor extends InputEditor.Base {
 
     }
     
-    Set<Taxon> getTaxonCandidates(MRCAPrior prior) {
+    Set<Taxon> getTaxonCandidates(BBDPrior prior) {
         Set<Taxon> candidates = new HashSet<>();
         Tree tree = prior.treeInput.get();
         String [] taxa = null;

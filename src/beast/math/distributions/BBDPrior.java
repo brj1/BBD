@@ -28,9 +28,16 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import beast.core.Description;
+import beast.core.Distribution;
 import beast.core.Input;
+import beast.core.State;
 import beast.core.parameter.RealParameter;
+import beast.evolution.alignment.TaxonSet;
 import beast.evolution.tree.Node;
+import beast.evolution.tree.Tree;
+import java.util.LinkedHashSet;
+import java.util.Random;
+import java.util.Set;
 
 
 /**
@@ -38,20 +45,53 @@ import beast.evolution.tree.Node;
  * @author Bradley R. Jones
  */
 @Description("Blind dating prior")
-public class BBDPrior extends MRCAPrior {
+public class BBDPrior extends Distribution {
     public final Input<RealParameter> startingDateProbInput = new Input<>("collectedDateProbability", "the probability that the collected date is correct");
 //    public final Input<Double> startingDateDifferenceInput = new Input<>("startDateDifference", "the starting value");
     public final Input<Double> collectedDateInput = new Input<>("collectedDate", "the collected date");
+    public final Input<Tree> treeInput = new Input<>("tree", "the tree containing the taxon set", Input.Validate.REQUIRED);
+    public final Input<TaxonSet> taxonsetInput = new Input<>("taxonset",
+            "set of taxa for which prior information is available");
+    public final Input<Boolean> isMonophyleticInput = new Input<>("monophyletic",
+            "whether the taxon set is monophyletic (forms a clade without other taxa) or nor. Default is false.", false);
+    public final Input<ParametricDistribution> distInput = new Input<>("distr",
+            "distribution used to calculate prior over MRCA time, "
+                    + "e.g. normal, beta, gamma. If not specified, monophyletic must be true");
+    public final Input<Boolean> onlyUseTipsInput = new Input<>("tipsonly",
+            "flag to indicate tip dates are to be used instead of the MRCA node. " +
+                    "If set to true, the prior is applied to the height of all tips in the taxonset " +
+                    "and the monophyletic flag is ignored. Default is false.", true);
+    public final Input<Boolean> useOriginateInput = new Input<>("useOriginate", "Use parent of clade instead of clade. Cannot be used with tipsonly, or on the root.", false);
+    
     
     double[] oriDate;
     double startingDateProb;
     double collectedDate;
 //    double startingDateDifference;
-    
-    public BBDPrior() {
-        onlyUseTipsInput.defaultValue = true;
-    }
 
+        /**
+     * shadow members *
+     */
+    ParametricDistribution dist;
+    Tree tree;
+    // number of taxa in taxon set
+    int nrOfTaxa = -1;
+    // array of flags to indicate which taxa are in the set
+    Set<String> isInTaxaSet = new LinkedHashSet<>();
+
+    // array of indices of taxa
+    int[] taxonIndex;
+    // stores time to be calculated
+    double MRCATime = -1;
+    double storedMRCATime = -1;
+    // flag indicating taxon set is monophyletic
+    boolean isMonophyletic = false;
+    boolean onlyUseTips = false;
+    boolean useRoot = false;
+    boolean useOriginate = false;
+    
+    boolean initialised = false;
+    
     @Override
     public void initAndValidate() {
         dist = distInput.get();
@@ -94,7 +134,6 @@ public class BBDPrior extends MRCAPrior {
         initialised = false;
     }
     
-    @Override
     protected void initialise() {
         List<String> set = null;
         int k = 0;
@@ -274,9 +313,9 @@ public class BBDPrior extends MRCAPrior {
     
     @Override
     public int getDimension() {
-        return 1;
+        return 2;
     }
-    
+
     @Override
     public double getArrayValue() {
     	if (Double.isNaN(logP)) {
@@ -301,8 +340,134 @@ public class BBDPrior extends MRCAPrior {
         switch (dim) {
             case 0:
                 return logP;
+            case 1:
+                return MRCATime;
             default:
                 return 0;
         }
+    }
+    
+    boolean [] nodesTraversed;
+    int nseen;
+
+    protected Node getCommonAncestor(Node n1, Node n2) {
+        // assert n1.getTree() == n2.getTree();
+        if( ! nodesTraversed[n1.getNr()] ) {
+            nodesTraversed[n1.getNr()] = true;
+            nseen += 1;
+        }
+        if( ! nodesTraversed[n2.getNr()] ) {
+            nodesTraversed[n2.getNr()] = true;
+            nseen += 1;
+        }
+        while (n1 != n2) {
+	        double h1 = n1.getHeight();
+	        double h2 = n2.getHeight();
+	        if ( h1 < h2 ) {
+	            n1 = n1.getParent();
+	            if( ! nodesTraversed[n1.getNr()] ) {
+	                nodesTraversed[n1.getNr()] = true;
+	                nseen += 1;
+	            }
+	        } else if( h2 < h1 ) {
+	            n2 = n2.getParent();
+	            if( ! nodesTraversed[n2.getNr()] ) {
+	                nodesTraversed[n2.getNr()] = true;
+	                nseen += 1;
+	            }
+	        } else {
+	            //zero length branches hell
+	            Node n;
+	            double b1 = n1.getLength();
+	            double b2 = n2.getLength();
+	            if( b1 > 0 ) {
+	                n = n2;
+	            } else { // b1 == 0
+	                if( b2 > 0 ) {
+	                    n = n1;
+	                } else {
+	                    // both 0
+	                    n = n1;
+	                    while( n != null && n != n2 ) {
+	                        n = n.getParent();
+	                    }
+	                    if( n == n2 ) {
+	                        // n2 is an ancestor of n1
+	                        n = n1;
+	                    } else {
+	                        // always safe to advance n2
+	                        n = n2;
+	                    }
+	                }
+	            }
+	            if( n == n1 ) {
+                    n = n1 = n.getParent();
+                } else {
+                    n = n2 = n.getParent();
+                }
+	            if( ! nodesTraversed[n.getNr()] ) {
+	                nodesTraversed[n.getNr()] = true;
+	                nseen += 1;
+	            } 
+	        }
+        }
+        return n1;
+    }
+    
+    public Node getCommonAncestor() {
+        if (!initialised) {
+            initialise();
+        }
+        nodesTraversed = new boolean[tree.getNodeCount()];
+        Node n = getCommonAncestorInternal();
+        assert ! (useRoot && !n.isRoot() ) ;
+        return n;
+    }
+
+    private Node getCommonAncestorInternal() {
+        Node cur = tree.getNode(taxonIndex[0]);
+
+        for (int k = 1; k < taxonIndex.length; ++k) {
+            cur = getCommonAncestor(cur, tree.getNode(taxonIndex[k]));
+        }
+        return cur;
+    }
+    
+    @Override
+    public void store() {
+        storedMRCATime = MRCATime;
+        // don't need to store m_bIsMonophyletic since it is never reported
+        // explicitly, only logP and MRCA time are (re)stored
+        super.store();
+    }
+
+    @Override
+    public void restore() {
+        MRCATime = storedMRCATime;
+        super.restore();
+    }
+
+    @Override
+    protected boolean requiresRecalculation() {
+        return super.requiresRecalculation();
+    }
+    
+    @Override
+    public void close(final PrintStream out) {
+        // nothing to do
+    }
+
+    @Override
+    public void sample(final State state, final Random random) {
+    }
+
+    @Override
+    public List<String> getArguments() {
+        return null;
+    }
+
+    @Override
+    public List<String> getConditions() {
+        return null;
     }
 }
