@@ -69,8 +69,6 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
             if (reflectValue) {
                 newValue = reflectValue(newValue, 0.0, node.getParent().getHeight());
             } else {
-                // To remove
-                System.err.println("proposal out pf bounds");
                 return Double.NEGATIVE_INFINITY;
             }
         }
