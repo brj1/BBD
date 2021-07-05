@@ -5,7 +5,7 @@ To install on MAC:
 
 ```
 cd dist
-unzip BBD.v1.0.4.zip
+unzip BBD.addon.zip
 mkdir ~/Library/Application\ Support/BEAST/2.6/BBD
 cp -r * ~/Library/Application\ Support/BEAST/2.6/BBD/
 ```
