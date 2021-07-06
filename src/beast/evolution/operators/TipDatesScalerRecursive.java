@@ -42,13 +42,30 @@ import java.util.ListIterator;
  * @author Bradley R. Jones
  */
 public class TipDatesScalerRecursive extends TipDatesScalerPadded {
+    final public Input<Double> rangeInput = new Input<>("range", "range that parent nodes can be moved back", Input.Validate.REQUIRED);
+    final public Input<Double> moveProbInput = new Input<>("moveProp", "proability to move parent node", Input.Validate.REQUIRED);
+    
     TipDateRecursiveShifter shifter;
+    double range;
+    double moveProp;
     
     @Override
     public void initAndValidate() {
         super.initAndValidate();
-                
-        shifter = new TipDateRecursiveShifter(padding);
+        
+        moveProp = paddingInput.get();
+        
+        if (moveProp < 0 || moveProp > 1) {
+            throw new IllegalArgumentException("moveProp must between 0 and 1");
+        }
+        
+        range = rangeInput.get();
+        
+        if (range < 0) {
+            throw new IllegalArgumentException("range must be nonegative");
+        }
+        
+        shifter = new TipDateRecursiveShifter(padding, range, moveProp, true);
     }
     
     @Override
@@ -58,19 +75,12 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
 
         
         if (scaleAll) {
-            depthList = new ArrayList<>(0);
             List<Node> nodeList = new ArrayList<>(0);
             for (int i: taxonIndices) {
                 nodeList.add(treeInput.get().getNode(i));
             }
             
-            nodeList.sort(new NodeHeightComp(scale < 0));
-            
-            for (Node node: nodeList) {
-                double newValue = node.getHeight() * scale;
-                
-                depthList.addAll(shifter.recursiveProposal(newValue, node));
-            }
+            depthList = shifter.recursiveProposalAll(scale, nodeList);
         } else {
             // randomly select leaf node
             final int i = Randomizer.nextInt(taxonIndices.length);
@@ -89,20 +99,6 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
         // To remove
         System.err.println("proposal depth: " + depthList.size());
 
-        return (depth == 0) ? -Math.log(scale) : -Math.log(scale) + depth;
-    }
-    
-    private class NodeHeightComp implements Comparator<Node> {
-        
-        final private int ascendingFactor;
-        
-        public NodeHeightComp(boolean ascending) {
-            ascendingFactor = ascending ? 1 : -1;
-        }
-
-        @Override
-        public int compare(Node node1, Node node2) {
-            return Double.compare(node1.getHeight(), node2.getHeight()) * ascendingFactor;
-        }
+        return -Math.log(scale) + depth;
     }
 }
