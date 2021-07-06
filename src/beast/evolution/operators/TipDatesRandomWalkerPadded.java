@@ -53,6 +53,10 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
             padding = 1E-4;
         }
         
+        if (padding < 0) {
+            throw new IllegalArgumentException("padding must be nonnegative");
+        }
+        
         if (scaleAllInput.get() != null) {
             scaleAll = scaleAllInput.get();
         } else {
