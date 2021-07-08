@@ -101,12 +101,37 @@ public class BBDPrior extends Distribution {
             taxaNames.add(taxon);
         }
         // determine nr of taxa in taxon set
+        List<String> set = null;
         if (taxonsetInput.get() != null) {
-            List<String> set = taxonsetInput.get().asStringList();
+            set = taxonsetInput.get().asStringList();
             nrOfTaxa = set.size();
         } else {
             // assume all taxa
             nrOfTaxa = taxaNames.size();
+        }
+
+        onlyUseTips = onlyUseTipsInput.get();
+        useOriginate = useOriginateInput.get();
+        if (nrOfTaxa == 1) {
+            // ignore test for Monophyletic when it only involves a tree tip
+        	if (!useOriginate && !onlyUseTips) {
+        		onlyUseTips = true;
+        	}
+        }
+        if (!onlyUseTips && !useOriginate && nrOfTaxa < 2) {
+            throw new IllegalArgumentException("At least two taxa are required in a taxon set");
+        }
+        if (!onlyUseTips && taxonsetInput.get() == null) {
+            throw new IllegalArgumentException("Taxonset must be specified OR tipsonly be set to true");
+        }
+        
+       
+        if (useOriginate && onlyUseTips) {
+        	throw new IllegalArgumentException("'useOriginate' and 'tipsOnly' cannot be both true");
+        }
+        useRoot = nrOfTaxa == tree.getLeafNodeCount();
+        if (useOriginate && useRoot) {
+        	throw new IllegalArgumentException("Cannot use originate of root. You can set useOriginate to false to fix this");
         }
         
         if (startingDateProbInput.get() == null)
@@ -122,11 +147,6 @@ public class BBDPrior extends Distribution {
             }
         else
             collectedDate = collectedDateInput.get();
-        
-//        if (startingDateDifferenceInput.get() == null)
-//            startingDateDifference = 0;
-//        else
-//            startingDateDifference = startingDateDifferenceInput.get();
        
         if (startingDateProb > 1 || startingDateProb < 0)
             throw new IllegalArgumentException("Starting Date Probability must be betweem 0 and 1");

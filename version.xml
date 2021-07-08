@@ -1,5 +1,4 @@
-<addon name="BBD" version="1.0.8">
+<addon name="BBD" version="1.0.9">
 	<depends on="BEAST" atleast="2.6.3"/>
 	<depends on="MultiTypeTree" atleast="7.0.2"/>
 </addon>
-        
