@@ -42,11 +42,11 @@ import java.util.ListIterator;
  * @author Bradley R. Jones
  */
 public class TipDatesScalerRecursive extends TipDatesScalerPadded {
-    final public Input<Double> rangeInput = new Input<>("range", "range that parent nodes can be moved back", Input.Validate.REQUIRED);
+    final public Input<Double> parentScaleInput = new Input<>("parentScale", "scale that parent nodes can be moved back", Input.Validate.REQUIRED);
     final public Input<Double> moveProbInput = new Input<>("moveProp", "proability to move parent node", Input.Validate.REQUIRED);
     
     TipDateRecursiveShifter shifter;
-    double range;
+    double parentScale;
     double moveProp;
     
     @Override
@@ -59,13 +59,13 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
             throw new IllegalArgumentException("moveProp must between 0 and 1");
         }
         
-        range = rangeInput.get();
+        parentScale = parentScaleInput.get();
         
-        if (range < 0) {
-            throw new IllegalArgumentException("range must be nonegative");
+        if (parentScale < 1) {
+            throw new IllegalArgumentException("parent scale must be greater than 1");
         }
         
-        shifter = new TipDateRecursiveShifter(padding, range, moveProp, true);
+        shifter = new TipDateRecursiveShifter(padding, parentScale, moveProp, true);
     }
     
     @Override

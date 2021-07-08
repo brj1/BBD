@@ -25,9 +25,14 @@ public class TipDateRecursiveShifter {
 
     public TipDateRecursiveShifter(double padding, double parentRange, double moveProb, boolean isScale) {
         this.padding = padding;
-        this.parentRange = parentRange;
         this.moveProb = moveProb;
         this.isScale = isScale;
+
+        if (isScale) {
+            this.parentRange = parentRange - 1;
+        } else {
+            this.parentRange = parentRange;
+        }
     }
 
     private double maxChildHeight(Node node) {
@@ -40,6 +45,14 @@ public class TipDateRecursiveShifter {
         }
 
         return height;
+    }
+
+    private boolean checkRange(double parentHeight, double childHeight) {
+        if (isScale) {
+            return parentHeight - childHeight < parentRange * childHeight;
+        } else {
+            return parentHeight - childHeight < parentRange;
+        }
     }
 
     public List<Double> recursiveProposal(double newValue, Node node) {
@@ -55,12 +68,19 @@ public class TipDateRecursiveShifter {
                 node.setHeight(newValue);
                 final double upper = maxChildHeight(parent);
 
-                final double shift = Randomizer.nextDouble() * parentRange;
-                depth = recursiveProposal(newValue + shift, parent);
+                double shift;
+
+                if (isScale) {
+                    shift = newValue + Randomizer.nextDouble() * parentRange;
+                } else {
+                    shift = newValue * (Randomizer.nextDouble() * (parentRange - 1) + 1);
+                }
+
+                depth = recursiveProposal(shift, parent);
 
                 depth.add(Math.log(parentRange * moveProb / (upper - lower)));
                 // check if next parent is close
-            } else if (node.getHeight() < newValue && (parentHeight - newValue < parentRange)) {
+            } else if (node.getHeight() < newValue && checkRange(parentHeight, newValue)) {
                 final double lower = maxChildHeight(parent);
                 node.setHeight(newValue);
                 final double upper = maxChildHeight(parent);
@@ -71,7 +91,7 @@ public class TipDateRecursiveShifter {
                 }
 
                 // push close parent node down
-            } else if (node.getHeight() > newValue && (parentHeight - node.getHeight() < parentRange)) {
+            } else if (node.getHeight() > newValue && checkRange(parentHeight, newValue)) {
                 final double upper = maxChildHeight(parent);
                 node.setHeight(newValue);
                 final double lower = maxChildHeight(parent);
@@ -139,10 +159,10 @@ public class TipDateRecursiveShifter {
                     }
                 } else {
                     final double doMove = Randomizer.nextDouble();
-                    
+
                     if (doMove < moveProb) {
                         newHeight = Randomizer.nextDouble() * (item.childHeight - newChildHeight) + newChildHeight;
-
+                        
                         depth.add(Math.log((item.childHeight - newChildHeight) / (moveProb * parentRange)));
                     } else {
                         depth.add(-Math.log(1 - moveProb));
@@ -156,9 +176,9 @@ public class TipDateRecursiveShifter {
 
             if (parent != null) {
                 final double parentHeight = parent.getHeight();
-                
+
                 // add parent mode
-                if ((isIncreasing && parentHeight < newHeight + parentRange) || (!isIncreasing && parentHeight < nodeHeight + parentRange)) {
+                if ((isIncreasing && parentHeight < newHeight) || (!isIncreasing && checkRange(parentHeight, nodeHeight))) {
                     int i;
 
                     for (i = 0; i < queue.size(); i++) {
