@@ -16,7 +16,7 @@
 
     <!-- Directories necessary for all BEAST 2 packages -->
     <property name="doc" location="doc"/>
-    <property name="examples" location="examples"/>
+    <property name="examples" location="examples_tmp"/>
     <property name="templates" location="templates"/>
 
     <!-- BEAST branch and version to build against
