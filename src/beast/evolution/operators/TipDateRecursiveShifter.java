@@ -54,7 +54,7 @@ public class TipDateRecursiveShifter {
             return parentHeight - childHeight < parentRange;
         }
     }
-
+    
     public List<Double> recursiveProposal(double newValue, Node node) {
         List<Double> depth = new ArrayList<>(0);
         final Node parent = node.getParent();
@@ -73,13 +73,12 @@ public class TipDateRecursiveShifter {
                 if (isScale) {
                     shift = newValue + Randomizer.nextDouble() * parentRange;
                 } else {
-                    shift = newValue * (Randomizer.nextDouble() * (parentRange - 1) + 1);
+                    shift = newValue * (Randomizer.nextDouble() * parentRange + 1);
                 }
 
                 depth = recursiveProposal(shift, parent);
 
                 depth.add(Math.log(parentRange * moveProb / (upper - lower)));
-                // check if next parent is close
             } else if (node.getHeight() < newValue && checkRange(parentHeight, newValue)) {
                 final double lower = maxChildHeight(parent);
                 node.setHeight(newValue);
@@ -89,9 +88,8 @@ public class TipDateRecursiveShifter {
                 if (upper > lower) {
                     depth.add(Math.log(1 - moveProb));
                 }
-
-                // push close parent node down
-            } else if (node.getHeight() > newValue && checkRange(parentHeight, newValue)) {
+            // push close parent node down
+            } else if (node.getHeight() > newValue && checkRange(parentHeight, node.getHeight())) {
                 final double upper = maxChildHeight(parent);
                 node.setHeight(newValue);
                 final double lower = maxChildHeight(parent);
@@ -176,7 +174,7 @@ public class TipDateRecursiveShifter {
 
             if (parent != null) {
                 final double parentHeight = parent.getHeight();
-
+                
                 // add parent mode
                 if ((isIncreasing && parentHeight < newHeight) || (!isIncreasing && checkRange(parentHeight, nodeHeight))) {
                     int i;

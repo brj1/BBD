@@ -135,6 +135,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         nodeList.add(treeParser.getNode(walker.taxonIndices[0]));
         nodeList.add(treeParser.getNode(walker.taxonIndices[2]));
 
+
         List<Double> hastings_rec = walker.shifter.recursiveProposalAll(0.1, nodeList);
         hastings_rec = walker.shifter.recursiveProposalAll(-0.1, nodeList);
         
