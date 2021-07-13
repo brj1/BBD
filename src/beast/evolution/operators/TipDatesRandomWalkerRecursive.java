@@ -124,12 +124,12 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         TipDatesRandomWalkerRecursive walker = new TipDatesRandomWalkerRecursive();
         walker.initByName("padding", 0.1, "tree", treeParser, "taxonset", taxa, "windowSize", 2.0, "weight", 1.0, "moveProb", 0.9, "range", 1.0);
         
-/*
+
         List<Double> hastings_rec = walker.shifter.recursiveProposal(1.5, treeParser.getNode(walker.taxonIndices[0]));
         hastings_rec = walker.shifter.recursiveProposal(0, treeParser.getNode(walker.taxonIndices[0]));
         hastings_rec = walker.shifter.recursiveProposal(0.5, treeParser.getNode(walker.taxonIndices[0]));
-*/
 
+/*
         List<Node> nodeList = new ArrayList<>(0);
         
         nodeList.add(treeParser.getNode(walker.taxonIndices[0]));
@@ -141,7 +141,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         
         hastings_rec = walker.shifter.recursiveProposalAll(1.5, nodeList);
         hastings_rec = walker.shifter.recursiveProposalAll(-1.5, nodeList);
-
+*/
 //        walker.initByName("scaleAll", true);
         
         double hastings = walker.proposal();

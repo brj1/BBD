@@ -22,6 +22,8 @@ public class TipDateRecursiveShifter {
     double moveProb;
     double logMoveProp;
     boolean isScale;
+    
+    private static List<Double> depthInfinity = new ArrayList<Double>() {{add(Double.NEGATIVE_INFINITY);}};
 
     public TipDateRecursiveShifter(double padding, double parentRange, double moveProb, boolean isScale) {
         this.padding = padding;
@@ -75,6 +77,9 @@ public class TipDateRecursiveShifter {
                 } else {
                     shift = newValue * (Randomizer.nextDouble() * parentRange + 1);
                 }
+                
+                if (shift - upper < padding)
+                    return depthInfinity;
 
                 depth = recursiveProposal(shift, parent);
 
@@ -83,7 +88,10 @@ public class TipDateRecursiveShifter {
                 final double lower = maxChildHeight(parent);
                 node.setHeight(newValue);
                 final double upper = maxChildHeight(parent);
-
+                
+                if (parentHeight - upper < padding)
+                    return depthInfinity;
+                
                 // edge case
                 if (upper > lower) {
                     depth.add(Math.log(1 - moveProb));
@@ -101,13 +109,21 @@ public class TipDateRecursiveShifter {
                     if (doMove < moveProb) {
                         final double nextShift = Randomizer.nextDouble() * (upper - lower) + lower;
 
+                        if (nextShift - lower < padding)
+                            return depthInfinity;
+                        
                         depth = recursiveProposal(nextShift, parent);
 
                         depth.add(Math.log((upper - lower) / (moveProb * parentRange)));
                     } else {
+                        if (parentHeight - lower < padding)
+                            return depthInfinity;
+                        
                         depth.add(-Math.log(1 - moveProb));
                     }
                 }
+            } else {
+                node.setHeight(newValue);
             }
         } else {
             node.setHeight(newValue);
@@ -147,10 +163,16 @@ public class TipDateRecursiveShifter {
                     // move node up
                     if (nodeHeight < newChildHeight) {
                         newHeight = newChildHeight + Randomizer.nextDouble() * parentRange;
+                        
+                        if (newHeight - newChildHeight < padding)
+                            return depthInfinity;
 
                         depth.add(Math.log(parentRange * moveProb / (newChildHeight - item.childHeight)));
                         // don't move node
                     } else {
+                        if (nodeHeight - newChildHeight < padding)
+                            return depthInfinity;
+                        
                         depth.add(Math.log(1 - moveProb));
 
                         continue;
@@ -161,9 +183,15 @@ public class TipDateRecursiveShifter {
                     if (doMove < moveProb) {
                         newHeight = Randomizer.nextDouble() * (item.childHeight - newChildHeight) + newChildHeight;
                         
+                        if (newHeight - newChildHeight < padding)
+                            return depthInfinity;
+                        
                         depth.add(Math.log((item.childHeight - newChildHeight) / (moveProb * parentRange)));
                     } else {
                         depth.add(-Math.log(1 - moveProb));
+                        
+                        if (nodeHeight - newChildHeight < padding)
+                            return depthInfinity;
                         
                         continue;
                     }
