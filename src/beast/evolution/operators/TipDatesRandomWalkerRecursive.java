@@ -80,9 +80,10 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         if (scale == 0) {
             return Double.NEGATIVE_INFINITY;
         }
+        
+        List<Node> nodeList = new ArrayList<>(0);
 
         if (scaleAll) {
-            List<Node> nodeList = new ArrayList<>(0);
             
             for (int i: taxonIndices) {
                 nodeList.add(treeInput.get().getNode(i));
@@ -93,11 +94,11 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             // randomly select leaf node
             final int i = Randomizer.nextInt(taxonIndices.length);
             Node node = treeInput.get().getNode(taxonIndices[i]);
-
-            double newValue = node.getHeight() + scale;
-
-            depthList = shifter.recursiveProposal(newValue, node);
+            nodeList.add(node);   
         }
+        
+        depthList = shifter.recursiveProposalAll(scale, nodeList);
+        
         double depth = 0;
 
         for (double d : depthList) {
@@ -122,7 +123,7 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         taxa.initByName("taxon", tax0, "taxon", tax1, "taxon", tax2);
                 
         TipDatesRandomWalkerRecursive walker = new TipDatesRandomWalkerRecursive();
-        walker.initByName("padding", 0.1, "tree", treeParser, "taxonset", taxa, "windowSize", 2.0, "weight", 1.0, "moveProb", 0.9, "range", 1.0);
+        walker.initByName("padding", 0.0, "tree", treeParser, "taxonset", taxa, "windowSize", 2.0, "weight", 1.0, "moveProb", 0.9, "range", 1.0);
         
 
         List<Double> hastings_rec = walker.shifter.recursiveProposal(1.5, treeParser.getNode(walker.taxonIndices[0]));

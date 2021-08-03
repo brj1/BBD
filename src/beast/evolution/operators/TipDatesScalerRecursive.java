@@ -72,24 +72,21 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
     public double proposal() {
         final double scale = (scaleFactor + (Randomizer.nextDouble() * ((1.0 / scaleFactor) - scaleFactor)));
         List<Double> depthList;
-
+        List<Node> nodeList = new ArrayList<>(0);
         
         if (scaleAll) {
-            List<Node> nodeList = new ArrayList<>(0);
             for (int i: taxonIndices) {
                 nodeList.add(treeInput.get().getNode(i));
             }
-            
-            depthList = shifter.recursiveProposalAll(scale, nodeList);
         } else {
             // randomly select leaf node
             final int i = Randomizer.nextInt(taxonIndices.length);
             Node node = treeInput.get().getNode(taxonIndices[i]);
-
-            double newValue = node.getHeight() * scale;
-
-            depthList = shifter.recursiveProposal(newValue, node);
+            nodeList.add(node);
         }
+        
+        depthList = shifter.recursiveProposalAll(scale, nodeList);
+        
         double depth = 0;
 
         for (double d : depthList) {

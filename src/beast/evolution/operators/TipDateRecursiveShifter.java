@@ -73,9 +73,9 @@ public class TipDateRecursiveShifter {
                 double shift;
 
                 if (isScale) {
-                    shift = newValue + Randomizer.nextDouble() * parentRange;
-                } else {
                     shift = newValue * (Randomizer.nextDouble() * parentRange + 1);
+                } else {
+                    shift = newValue + Randomizer.nextDouble() * parentRange;
                 }
                 
                 if (shift - upper < padding)
@@ -162,7 +162,11 @@ public class TipDateRecursiveShifter {
                 if (isIncreasing) {
                     // move node up
                     if (nodeHeight < newChildHeight) {
-                        newHeight = newChildHeight + Randomizer.nextDouble() * parentRange;
+                        if (isScale) {
+                            newHeight = newChildHeight * (Randomizer.nextDouble() * parentRange + 1);
+                        } else {
+                            newHeight = newChildHeight + Randomizer.nextDouble() * parentRange;
+                        }
                         
                         if (newHeight - newChildHeight < padding)
                             return depthInfinity;
