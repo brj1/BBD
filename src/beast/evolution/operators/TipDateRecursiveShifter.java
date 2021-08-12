@@ -192,10 +192,10 @@ public class TipDateRecursiveShifter {
                         
                         depth.add(Math.log((item.childHeight - newChildHeight) / (moveProb * parentRange)));
                     } else {
-                        depth.add(-Math.log(1 - moveProb));
-                        
                         if (nodeHeight - newChildHeight < padding)
                             return depthInfinity;
+                        
+                        depth.add(-Math.log(1 - moveProb));
                         
                         continue;
                     }
