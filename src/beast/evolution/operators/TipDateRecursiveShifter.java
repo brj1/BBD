@@ -57,81 +57,6 @@ public class TipDateRecursiveShifter {
         }
     }
     
-    public List<Double> recursiveProposal(double newValue, Node node) {
-        List<Double> depth = new ArrayList<>(0);
-        final Node parent = node.getParent();
-
-        if (parent != null) {
-            final double parentHeight = parent.getHeight();
-
-            // push parent node up
-            if (parentHeight < newValue) {
-                final double lower = maxChildHeight(parent);
-                node.setHeight(newValue);
-                final double upper = maxChildHeight(parent);
-
-                double shift;
-
-                if (isScale) {
-                    shift = newValue * (Randomizer.nextDouble() * parentRange + 1);
-                } else {
-                    shift = newValue + Randomizer.nextDouble() * parentRange;
-                }
-                
-                if (shift - upper < padding)
-                    return depthInfinity;
-
-                depth = recursiveProposal(shift, parent);
-
-                depth.add(Math.log(parentRange * moveProb / (upper - lower)));
-            } else if (node.getHeight() < newValue && checkRange(parentHeight, newValue)) {
-                final double lower = maxChildHeight(parent);
-                node.setHeight(newValue);
-                final double upper = maxChildHeight(parent);
-                
-                if (parentHeight - upper < padding)
-                    return depthInfinity;
-                
-                // edge case
-                if (upper > lower) {
-                    depth.add(Math.log(1 - moveProb));
-                }
-            // push close parent node down
-            } else if (node.getHeight() > newValue && checkRange(parentHeight, node.getHeight())) {
-                final double upper = maxChildHeight(parent);
-                node.setHeight(newValue);
-                final double lower = maxChildHeight(parent);
-
-                // check edge case
-                if (upper > lower) {
-                    final double doMove = Randomizer.nextDouble();
-
-                    if (doMove < moveProb) {
-                        final double nextShift = Randomizer.nextDouble() * (upper - lower) + lower;
-
-                        if (nextShift - lower < padding)
-                            return depthInfinity;
-                        
-                        depth = recursiveProposal(nextShift, parent);
-
-                        depth.add(Math.log((upper - lower) / (moveProb * parentRange)));
-                    } else {
-                        if (parentHeight - lower < padding)
-                            return depthInfinity;
-                        
-                        depth.add(-Math.log(1 - moveProb));
-                    }
-                }
-            } else {
-                node.setHeight(newValue);
-            }
-        } else {
-            node.setHeight(newValue);
-        }
-
-        return depth;
-    }
-
     public List<Double> recursiveProposalAll(double scale, List<Node> nodeList) {
         List<Double> depth = new ArrayList<>(0);
         final NodeHeightComp comp = new NodeHeightComp(true);
@@ -208,22 +133,34 @@ public class TipDateRecursiveShifter {
                 final double parentHeight = parent.getHeight();
                 
                 // add parent mode
-                if ((isIncreasing && parentHeight < newHeight) || (!isIncreasing && checkRange(parentHeight, nodeHeight))) {
-                    int i;
+                if ((isIncreasing && checkRange(parentHeight, newHeight)) || (!isIncreasing && checkRange(parentHeight, nodeHeight))) {
+                    int position = -1;
 
-                    for (i = 0; i < queue.size(); i++) {
+                    for (int i = 0; i < queue.size(); i++) {
                         NodeHeight currentItem = queue.get(i);
 
-                        if (parent == currentItem.node) {
-                            break;
-                        }
-                        if (parentHeight < queue.get(i).node.getHeight()) {
-                            break;
+                        if (position < 0) {
+                            if (parent == currentItem.node) {
+                                queue.remove(i);
+                                i--;
+                            } else if (parentHeight < queue.get(i).node.getHeight()) {
+                                position = i;
+                            }
+                        } else {
+                            if (parent == currentItem.node) {
+                                position = -2; // parent height better flag
+                                                                
+                                break;
+                            }
                         }
                     }
+                    
+                    if (position == -1) {
+                        position = queue.size();
+                    }
 
-                    if (i >= queue.size() || parent != queue.get(i).node) {
-                        queue.add(i, new NodeHeight(parent, maxChildHeight(parent), false));
+                    if (position >= 0) {
+                        queue.add(position, new NodeHeight(parent, maxChildHeight(parent), false));
                     }
                 }
             }
