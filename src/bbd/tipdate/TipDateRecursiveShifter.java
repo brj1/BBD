@@ -162,7 +162,7 @@ public class TipDateRecursiveShifter {
                 final double checkHeight = isIncreasing ? item.newHeight : nodeHeight;
                 
                 // add parent node
-                if (checkRange(parentHeight, checkHeight)) {
+                if (!map.containsKey(parent) && checkRange(parentHeight, checkHeight)) {
                     int i;
 
                     for (i = 0; i < queue.size(); i++) {
