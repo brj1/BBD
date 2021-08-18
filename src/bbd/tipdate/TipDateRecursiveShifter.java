@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package beast.evolution.operators;
+package bbd.tipdate;
 
 import beast.evolution.tree.Node;
 import beast.util.Randomizer;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -23,7 +25,7 @@ public class TipDateRecursiveShifter {
     double logMoveProp;
     boolean isScale;
     
-    private static List<Double> depthInfinity = new ArrayList<Double>() {{add(Double.NEGATIVE_INFINITY);}};
+    private static final List<Double> depthInfinity = new ArrayList<Double>() {{add(Double.NEGATIVE_INFINITY);}};
 
     public TipDateRecursiveShifter(double padding, double parentRange, double moveProb, boolean isScale) {
         this.padding = padding;
@@ -37,12 +39,32 @@ public class TipDateRecursiveShifter {
         }
     }
 
-    private double maxChildHeight(Node node) {
+    private double getMaxChildHeight(Node node) {
         double height = Double.MIN_VALUE;
 
         for (Node child : node.getChildren()) {
             if (child.getHeight() > height) {
                 height = child.getHeight();
+            }
+        }
+
+        return height;
+    }
+    
+    private double getMaxNewChildHeight(Node node, Map<Node,NodeHeight> map) {
+        double height = Double.MIN_VALUE;
+
+        for (Node child : node.getChildren()) {
+            NodeHeight childItem;
+            
+            if (map.containsKey(child)) {
+                childItem = map.get(child);
+            } else {
+                childItem = new NodeHeight(child);
+            }
+            
+            if (childItem.newHeight > height) {
+                height = childItem.newHeight;
             }
         }
 
@@ -61,13 +83,17 @@ public class TipDateRecursiveShifter {
         List<Double> depth = new ArrayList<>(0);
         final NodeHeightComp comp = new NodeHeightComp(true);
         List<NodeHeight> queue = new ArrayList<>(0);
+        Map<Node,NodeHeight> map = new HashMap<>();
         final boolean isIncreasing = (isScale && scale > 1) || (!isScale && scale > 0);
 
         nodeList.sort(comp);
-
+        
         // iinitalize
         for (Node node : nodeList) {
-            queue.add(new NodeHeight(node, 0, true));
+            NodeHeight item = new NodeHeight(node);
+            
+            queue.add(item);
+            map.put(node, item);
         }
 
         while (!queue.isEmpty()) {
@@ -75,31 +101,31 @@ public class TipDateRecursiveShifter {
             queue.remove(0);
 
             final double nodeHeight = item.node.getHeight();
-            double newHeight;
 
             // move tip
-            if (item.isTip) {
-                newHeight = isScale ? nodeHeight * scale : nodeHeight + scale;
-                // move iternal node
+            if (item.node.isLeaf()) {
+                item.newHeight = isScale ? nodeHeight * scale : nodeHeight + scale;
+            // move iternal node
             } else {
-                final double newChildHeight = maxChildHeight(item.node);
+                final double newMaxChildHeight = getMaxNewChildHeight(item.node, map);
+                final double maxChildHeight = getMaxChildHeight(item.node);
 
                 if (isIncreasing) {
                     // move node up
-                    if (nodeHeight < newChildHeight) {
+                    if (nodeHeight < newMaxChildHeight) {
                         if (isScale) {
-                            newHeight = newChildHeight * (Randomizer.nextDouble() * parentRange + 1);
+                            item.newHeight = newMaxChildHeight * (Randomizer.nextDouble() * parentRange + 1);
                         } else {
-                            newHeight = newChildHeight + Randomizer.nextDouble() * parentRange;
+                            item.newHeight = newMaxChildHeight + Randomizer.nextDouble() * parentRange;
                         }
                         
-                        if (newHeight - newChildHeight < padding)
+                        if (item.newHeight - newMaxChildHeight < padding)
                             return depthInfinity;
 
-                        depth.add(Math.log(parentRange * moveProb / (newChildHeight - item.childHeight)));
-                        // don't move node
+                        depth.add(Math.log(parentRange * moveProb / (newMaxChildHeight - maxChildHeight)));
+                    // don't move node
                     } else {
-                        if (nodeHeight - newChildHeight < padding)
+                        if (nodeHeight - newMaxChildHeight < padding)
                             return depthInfinity;
                         
                         depth.add(Math.log(1 - moveProb));
@@ -109,15 +135,17 @@ public class TipDateRecursiveShifter {
                 } else {
                     final double doMove = Randomizer.nextDouble();
 
+                    // move node down
                     if (doMove < moveProb) {
-                        newHeight = Randomizer.nextDouble() * (item.childHeight - newChildHeight) + newChildHeight;
+                        item.newHeight = Randomizer.nextDouble() * (maxChildHeight - newMaxChildHeight) + newMaxChildHeight;
                         
-                        if (newHeight - newChildHeight < padding)
+                        if (item.newHeight - newMaxChildHeight < padding)
                             return depthInfinity;
                         
-                        depth.add(Math.log((item.childHeight - newChildHeight) / (moveProb * parentRange)));
+                        depth.add(Math.log((maxChildHeight - newMaxChildHeight) / (moveProb * parentRange)));
+                    // don't move node
                     } else {
-                        if (nodeHeight - newChildHeight < padding)
+                        if (item.newHeight - newMaxChildHeight < padding)
                             return depthInfinity;
                         
                         depth.add(-Math.log(1 - moveProb));
@@ -131,41 +159,30 @@ public class TipDateRecursiveShifter {
 
             if (parent != null) {
                 final double parentHeight = parent.getHeight();
+                final double checkHeight = isIncreasing ? item.newHeight : nodeHeight;
                 
-                // add parent mode
-                if ((isIncreasing && checkRange(parentHeight, newHeight)) || (!isIncreasing && checkRange(parentHeight, nodeHeight))) {
-                    int position = -1;
+                // add parent node
+                if (checkRange(parentHeight, checkHeight)) {
+                    int i;
 
-                    for (int i = 0; i < queue.size(); i++) {
-                        NodeHeight currentItem = queue.get(i);
-
-                        if (position < 0) {
-                            if (parent == currentItem.node) {
-                                queue.remove(i);
-                                i--;
-                            } else if (parentHeight < queue.get(i).node.getHeight()) {
-                                position = i;
-                            }
-                        } else {
-                            if (parent == currentItem.node) {
-                                position = -2; // parent height better flag
-                                                                
-                                break;
-                            }
+                    for (i = 0; i < queue.size(); i++) {
+                        if (parentHeight < queue.get(i).node.getHeight()) {
+                            break;
                         }
                     }
-                    
-                    if (position == -1) {
-                        position = queue.size();
-                    }
 
-                    if (position >= 0) {
-                        queue.add(position, new NodeHeight(parent, maxChildHeight(parent), false));
+                    if (i >= queue.size() || parent != queue.get(i).node) {
+                        NodeHeight parentItem = new NodeHeight(parent);
+                        
+                        queue.add(i, parentItem);
+                        map.put(parent, parentItem);
                     }
                 }
             }
-
-            item.node.setHeight(newHeight);
+        }
+        
+        for (Node node : map.keySet()) {
+            node.setHeight(map.get(node).newHeight);
         }
 
         return depth;
@@ -174,13 +191,11 @@ public class TipDateRecursiveShifter {
     private class NodeHeight {
 
         public Node node;
-        public double childHeight;
-        public boolean isTip;
+        public double newHeight;
 
-        public NodeHeight(Node node, double childHeight, boolean isTip) {
+        public NodeHeight(Node node) {
             this.node = node;
-            this.childHeight = childHeight;
-            this.isTip = isTip;
+            this.newHeight = node.getHeight();
         }
     }
 

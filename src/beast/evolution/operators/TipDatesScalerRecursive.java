@@ -24,6 +24,7 @@
 */
 package beast.evolution.operators;
 
+import bbd.tipdate.TipDateRecursiveShifter;
 import beast.core.Input;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Taxon;
