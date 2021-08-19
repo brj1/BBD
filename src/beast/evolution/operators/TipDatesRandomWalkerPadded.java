@@ -42,9 +42,7 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
     boolean scaleAll;
     
     @Override
-    public void initAndValidate() {
-        super.reflectValue = false;
-        
+    public void initAndValidate() {        
         super.initAndValidate();
         
         if (paddingInput.get() != null) {
