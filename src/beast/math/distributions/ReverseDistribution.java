@@ -46,7 +46,7 @@ public class ReverseDistribution extends ParametricDistribution {
     }
 
     @Override
-    public double getMeanWithoutOffset() {
+    protected double getMeanWithoutOffset() {
         initAndValidate();
         return start - dist.getMeanWithoutOffset();
     }
