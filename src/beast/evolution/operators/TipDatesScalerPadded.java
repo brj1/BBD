@@ -49,7 +49,7 @@ public class TipDatesScalerPadded extends TipDatesScaler {
         if (paddingInput.get() != null) {
             padding = paddingInput.get();
         } else {
-            padding = 1E-4;
+            padding = 0;
         }
         
         if (padding < 0) {

@@ -50,7 +50,7 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
         if (paddingInput.get() != null) {
             padding = paddingInput.get();
         } else {
-            padding = 1E-4;
+            padding = 0;
         }
         
         if (padding < 0) {
