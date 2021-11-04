@@ -118,7 +118,8 @@ public class BBDPriorProvider implements PriorProvider {
             prior.taxonsetInput.setValue(taxonSet, prior);
             prior.setID(taxonSet.getID() + ".prior");
             // this sets up the type
-            prior.distInput.setValue((ParametricDistribution)(new OneOnX()), prior);
+//            ParametricDistribution tmpDistr = (ParametricDistribution)(new OneOnX());
+//            prior.distInput.setValue(tmpDistr, prior);
                         
             Logger logger = (Logger) doc.pluginmap.get("tracelog");
             logger.loggersInput.setValue(prior, logger);
