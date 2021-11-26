@@ -108,13 +108,13 @@ public class MultiStrictClockModel extends BranchRateModel.Base {
     @Override
     protected boolean requiresRecalculation() {
         recompute = false;
-
-        if (meanRateInput.get().somethingIsDirty()) {
+        
+        if (treeInput.get().somethingIsDirty()) {
             recompute = true;
             return true;
         }
         
-        if (treeInput.get().somethingIsDirty()) {
+        if (muParameter.somethingIsDirty()) {
             recompute = true;
             return true;
         }
