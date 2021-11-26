@@ -12,8 +12,8 @@ import beast.evolution.tree.Tree;
 import beast.util.Randomizer;
 
 /**
- *
- * @author brad
+ * Scale operator that 
+ * @author Bradley R. Jones
  */
 public class ScaleSomeOperator extends ScaleOperator {
      /**

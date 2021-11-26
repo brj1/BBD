@@ -114,7 +114,17 @@ public class MultiStrictClockModel extends BranchRateModel.Base {
             return true;
         }
         
+        if (meanRateInput.get().somethingIsDirty()) {
+            recompute = true;
+            return true;
+        }
+
         if (muParameter.somethingIsDirty()) {
+            recompute = true;
+            return true;
+        }
+        
+        if (tree.somethingIsDirty()) {
             recompute = true;
             return true;
         }

@@ -132,7 +132,7 @@ public class BBDPriorInputEditor extends InputEditor.Base {
         if (prior.distInput.getType() == null) {
             try {
                 prior.distInput.setValue(new OneOnX(), prior);
-//                prior.distInput.setValue(null, prior);
+                prior.distInput.setValue(null, prior);
             } catch (Exception e) {
                 // TODO: handle exception
             }
