@@ -102,7 +102,7 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
         if (scaleAll) {
             double ratio = 0;
             
-            for (int i : taxonIndices) {
+            for (int i = 0; i < taxonIndices.length; i++) {
                 ratio += scaleNode(i, scale);
                 
                 if (Double.isInfinite(ratio)) {

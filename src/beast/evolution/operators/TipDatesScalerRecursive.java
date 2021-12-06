@@ -76,7 +76,7 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
         List<Node> nodeList = new ArrayList<>(0);
         
         if (scaleAll) {
-            for (int i: taxonIndices) {
+            for (int i = 0; i < taxonIndices.length; i++) {
                 nodeList.add(treeInput.get().getNode(i));
             }
         } else {
@@ -93,9 +93,6 @@ public class TipDatesScalerRecursive extends TipDatesScalerPadded {
         for (double d : depthList) {
             depth += d;
         }
-
-        // To remove
-        System.err.println("proposal depth: " + depthList.size());
 
         return -Math.log(scale) + depth;
     }

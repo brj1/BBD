@@ -89,8 +89,6 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
             for (int i: taxonIndices) {
                 nodeList.add(treeInput.get().getNode(i));
             }
-            
-            depthList = shifter.recursiveProposalAll(scale, nodeList);
         } else {
             // randomly select leaf node
             final int i = Randomizer.nextInt(taxonIndices.length);
