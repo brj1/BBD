@@ -1,0 +1,16 @@
+<beast version='2.0'
+       namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution:beast.math.distributions'>
+
+
+    <mergewith point='parametricDistributions'>
+        <!-- ReverseDistribution -->
+        <subtemplate id='ReverseDistribution' class='beast.math.distributions.ReverseDistribution' mainid='[top]'>
+            <![CDATA[
+        <distr spec="beast.math.distributions.ReverseDistribution">
+            <parameter name='start' value="0" estimate='false'/>
+            <parameter name='distr' spec="beast.math.distributions.OneOnX"/>
+        </distr>
+]]>
+        </subtemplate>
+    </mergewith>
+</beast>
