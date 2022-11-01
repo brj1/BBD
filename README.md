@@ -21,6 +21,9 @@ package.update.status=AUTO_CHECK_AND_ASK
 package.path=\:/Users/USERNAME/Library/Application Support/BEAST/2.6/BEAST/lib/beast.jar\:/Users/USERNAME/Library/Application Support/BEAST/2.6/BBD/lib/BBD.addon.jar
 ```
 
+## BBDPrior
+
+The BBDPrior acts like the MRCAPrior of BEAST2, except that it reverses the direction that the prior acts in (time-backwards for time-forwards data and time-forwards for time-backwards data).
 
 To add prior in BEAUTi 2:
 
@@ -30,3 +33,4 @@ To add prior in BEAUTi 2:
 4. Choose taxa to date, give taxon set a label and click OK
 6. Select your prior distribution and starting date probability and you're off.
 
+Adding the BBDPrior in BEAST2 with the tipsonly box checked also adds a TipDatesRandomWalkerPadded operator to the XML fle.
