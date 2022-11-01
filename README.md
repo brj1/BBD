@@ -1,7 +1,9 @@
 # BBD: BEAST2 Better Dating
 Bradley R. Jones
 
-To install:
+BEAST2 Better Dating (BBD) is a package for the software Bayesian Evolutionary Analysis Sampling Trees 2 (BEAST2). BBD includes new priors and operators to extend BEAST2's ability to perform phylogenetic dating of tips and divergence times.
+
+## Installation
 
 1. Navigate to the BEAST2 package folder:</br>
 Linux: ~/.beast/2.6</br>
@@ -27,3 +29,4 @@ To add prior in BEAUTi 2:
 3. Select "BBD Prior" and click OK
 4. Choose taxa to date, give taxon set a label and click OK
 6. Select your prior distribution and starting date probability and you're off.
+
