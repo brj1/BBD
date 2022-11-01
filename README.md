@@ -1,4 +1,4 @@
-# BBD: BEAST 2 package for extended tip date sampling
+# BBD: BEAST2 Better Dating
 Bradley R. Jones
 
 To install:
