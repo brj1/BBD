@@ -1,7 +1,7 @@
 # BBD: BEAST2 Better Dating
 Bradley R. Jones
 
-BEAST2 Better Dating (BBD) is a package for the software Bayesian Evolutionary Analysis Sampling Trees 2 (BEAST2). BBD includes new priors and operators to extend BEAST2's ability to perform phylogenetic dating of tips and divergence times.
+BEAST2 Better Dating (BBD) is a package for the software Bayesian Evolutionary Analysis Sampling Trees 2 (BEAST2). BBD includes new priors and operators to extend BEAST2"s ability to perform phylogenetic dating of tips and divergence times.
 
 ## Installation
 
@@ -27,12 +27,88 @@ package.path=\:/Users/USERNAME/Library/Application Support/BEAST/2.6/BEAST/lib/b
 
 The BBDPrior acts like the MRCAPrior of BEAST2, except that it reverses the direction that the prior acts in (time-backwards for time-forwards data and time-forwards for time-backwards data).
 
-To add prior in BEAUTi 2:
+To add prior in BEAUTi2:
 
 1. Add aligment and tip dates
 2. Go to Priors tab and click the "+ Add Prior Button"
 3. Select "BBD Prior" and click OK
-4. Choose taxa to date, give taxon set a label and click OK
-6. Select your prior distribution and starting date probability and you're off.
+4. Choose taxa, give taxon set a label and click OK
+5. Select your prior distribution and starting date probability and you"re off.
 
-Adding the BBDPrior in BEAST2 with the tipsonly box checked also adds a TipDatesRandomWalkerPadded operator to the XML fle.
+Adding the BBDPrior in BEAST2 with the tipsonly box checked also adds a TipDatesRandomWalkerPadded operator (with `scaleAll="false"`) to the XML file.
+
+## TipDatesRandomWalkerPadded and TipDatesScalerPadded
+
+The TipDatesRandomWalkerPadded and TipDatesScalerPadded operators can be used to adjust tip dates together.
+
+To adjust tip dates together in BEAUTi2:
+
+1. Add aligment and tip dates
+2. Go to Priors tab and click the "+ Add Prior Button"
+3. Select either the "MRCA Prior" or "BBPrior" and click OK
+4. Choose taxa, give taxon set a label and click OK
+5. Select your prior distribution and starting date probability
+6. Save the BEAST2 XML file
+7. Open the XML file in a text editor
+8. Find the TipDatesRandomWalker operastyor for the taxon set:
+
+```
+<operator id="TipDatesRandomWalker" windowSize="1" spec="TipDatesRandomWalker" taxonset="@TaxonSet0" tree="@tree" weight="1.0"/>
+```
+
+9. Change "TipDatesRandomWalker" to "TipDatesRandomWalkerPadded" and add `scaleAll="true":
+
+```
+<operator id="TipDatesRandomWalkerPadded" windowSize="1" spec="TipDatesRandomWalker" taxonset="@TaxonSet0" tree="@tree" weight="1.0" scaleAll="true"/>
+```
+
+## TipDatesMultiTreeRandomWalker and TipDatesMultiTreeScaler
+The TipDatesMultiTreeRandomWalker and TipDatesMultiTreeScaler operators allow tip date sampling accross multiple trees.
+
+To adjust tip dates across multiple trees:
+
+1. Add aligments and tip dates
+2. Go to Priors tab and click the "+ Add Prior Button"
+3. Select either the "MRCA Prior" or "BBPrior" and click OK
+4. Select any tree and press Ok
+5. Choose taxa, give taxon set a label and click OK
+6. Select your prior distribution and starting date probability
+7. Save the BEAST2 XML file
+8. Open the XML file in a text editor
+9. Find the TipDatesRandomWalker operator for the taxon set:
+
+```
+<operator id="TipDatesRandomWalker" windowSize="1" spec="TipDatesRandomWalker" taxonset="@TaxonSet0" tree="@tree1" weight="1.0"/>
+```
+
+10. Change "TipDatesRandomWalker" to "bbd.tipdate.TipDatesMultiTreeRandomWalker" and add trees as below:
+
+```
+<operator id="TipDatesRandomWalker" windowSize="1"  spec="bbd.tipdate.TipDatesMultiTreeRandomWalker" taxonset="@TaxonSet0" weight="1.0">
+  <trees idref="@tree1"/>
+  <trees idref="@tree2"/>
+</operator>
+```
+
+## RootExchange
+
+The RootExchange operator re-roots a tree without changing the tree topology.
+
+To use the RootExchange operator:
+
+1. Create a BEAST2 XML file as usual woth BEAUTi
+2. Open the XML file in a text editor
+3. Remove the operators that change the tree topology (SubtreeSlide, both Exchange, and WilsonBalding):
+
+```
+<operator spec="SubtreeSlide" weight="5" gaussian="true" size="1.0" tree="@tree"/>
+<operator id="narrow" spec="Exchange" isNarrow="true" weight="1" tree="@tree"/>
+<operator id="wide" spec="Exchange" isNarrow="false" weight="1" tree="@tree"/>
+<operator spec="WilsonBalding" weight="1" tree="@tree"/>
+```
+
+4. Add the RootExchange operator (make sure that the `tree` parameter is the same as what was in the Exchange operator (in this case `@tree`):
+
+```
+<operator id="RootExchange" spec="RootExchange" isNarrow="true" weight="1" tree="@tree"/>
+```
