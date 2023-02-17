@@ -172,7 +172,7 @@ public class LatencyPrior extends Distribution {
         out.print(getCurrentLogP() + "\t");
         int k = 0;
         for (final int i : taxonIndex) {
-            out.print(oriDate[k++] - tree.getNode(i).getDate() + "\t");
+            out.print(tree.getNode(i).getDate() + "\t");
         }
     }
     
