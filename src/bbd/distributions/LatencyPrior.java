@@ -90,7 +90,7 @@ public class LatencyPrior extends Distribution {
         final double tMRCA = tree.getRoot().getDate();
         final double rate = reactivationRate - latencyRate;
         final double logRate = Math.log(rate);
-        final double tMRCAFactor = Math.log(rate * tMRCA);
+        final double tMRCAFactor = Math.exp(rate * tMRCA);
         
         for (final int i : taxonIndex) {
             double date = tree.getNode(i).getDate();
