@@ -89,7 +89,7 @@ public class LatencyPrior extends Distribution {
         
         final double tMRCA = tree.getRoot().getDate();
         final double rate = reactivationRate - latencyRate;
-        final double logRate = Math.log(rate);
+        final double logRate = Math.log(Math.abs(rate));
         final double tMRCAFactor = Math.exp(rate * tMRCA);
         
         for (final int i : taxonIndex) {
@@ -99,7 +99,7 @@ public class LatencyPrior extends Distribution {
                 // likelihood of going latent at `date` given sampling date
                 logP += rate * date +
                     logRate - 
-                    Math.log(Math.exp(rate * oriDate[k]) - tMRCAFactor);
+                    Math.log(Math.abs(Math.exp(rate * oriDate[k]) - tMRCAFactor));
             } else {
                 // not in range
                 return Double.NEGATIVE_INFINITY;
