@@ -22,19 +22,20 @@
 * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 * Boston, MA  02110-1301  USA
 */
-package beast.math.distributions;
+package bbd.distributions;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.State;
-import beast.core.parameter.RealParameter;
-import beast.evolution.alignment.TaxonSet;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.Tree;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.inference.parameter.RealParameter;
+import beast.base.evolution.alignment.TaxonSet;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.inference.State;
+import beast.base.inference.distribution.ParametricDistribution;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
@@ -478,10 +479,6 @@ public class BBDPrior extends Distribution {
     }
 
     @Override
-    public void sample(final State state, final Random random) {
-    }
-
-    @Override
     public List<String> getArguments() {
         return null;
     }
@@ -489,5 +486,9 @@ public class BBDPrior extends Distribution {
     @Override
     public List<String> getConditions() {
         return null;
+    }
+
+    @Override
+    public void sample(State state, Random random) {
     }
 }

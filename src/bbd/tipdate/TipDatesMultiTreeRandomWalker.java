@@ -24,10 +24,10 @@
 */
 package bbd.tipdate;
 
-import beast.core.Input;
-import beast.evolution.tree.Node;
-import beast.util.Randomizer;
-import beast.evolution.tree.Tree;
+import beast.base.core.Input;
+import beast.base.evolution.tree.Node;
+import beast.base.util.Randomizer;
+import beast.base.evolution.tree.Tree;
 import java.text.DecimalFormat;
 
 /**

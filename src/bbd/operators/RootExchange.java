@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package beast.evolution.operators;
+package bbd.operators;
 
-import beast.evolution.alignment.TaxonSet;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.Tree;
-import beast.util.Randomizer;
-import java.util.List;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.util.Randomizer;
+import beast.base.evolution.operator.Exchange;
 
 /**
  * Exchange operator for re-rooting a tree. Preservers the unrooted topology.

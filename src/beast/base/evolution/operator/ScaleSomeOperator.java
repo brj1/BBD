@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package beast.evolution.operators;
+package beast.base.evolution.operator;
 
-import beast.core.parameter.BooleanParameter;
-import beast.core.parameter.RealParameter;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.Tree;
-import beast.util.Randomizer;
+import beast.base.inference.parameter.BooleanParameter;
+import beast.base.inference.parameter.RealParameter;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.util.Randomizer;
 
 /**
  * Scale operator that 
@@ -30,7 +30,7 @@ public class ScaleSomeOperator extends ScaleOperator {
 
             if (m_bIsTreeScaler) {
 
-                final Tree tree = treeInput.get(this);
+                final Tree tree = treeInput.get();
                 if (rootOnlyInput.get()) {
                     final Node root = tree.getRoot();
                     final double newHeight = root.getHeight() * scale;
@@ -52,7 +52,7 @@ public class ScaleSomeOperator extends ScaleOperator {
             final int specifiedDoF = degreesOfFreedomInput.get();
             final boolean scaleAllIndependently = scaleAllIndependentlyInput.get();
 
-            final RealParameter param = parameterInput.get(this);
+            final RealParameter param = parameterInput.get();
 
             assert param.getLower() != null && param.getUpper() != null;
 

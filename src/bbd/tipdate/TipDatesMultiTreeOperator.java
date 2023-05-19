@@ -24,10 +24,10 @@
 */
 package bbd.tipdate;
 
-import beast.core.Input;
-import beast.core.Operator;
-import beast.evolution.alignment.TaxonSet;
-import beast.evolution.tree.Tree;
+import beast.base.core.Input;
+import beast.base.inference.Operator;
+import beast.base.evolution.alignment.TaxonSet;
+import beast.base.evolution.tree.Tree;
 import java.util.ArrayList;
 import java.util.List;
 

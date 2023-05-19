@@ -22,20 +22,14 @@
 * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 * Boston, MA  02110-1301  USA
 */
-package beast.evolution.operators;
+package beast.base.evolution.operator;
 
 import bbd.tipdate.TipDateRecursiveShifter;
-import beast.core.Input;
-import beast.core.parameter.RealParameter;
-import beast.evolution.alignment.Taxon;
-import beast.evolution.alignment.TaxonSet;
-import beast.evolution.tree.Node;
-import beast.util.Randomizer;
-import beast.util.TreeParser;
+import beast.base.core.Input;
+import beast.base.evolution.tree.Node;
+import beast.base.util.Randomizer;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.ListIterator;
 
 /**
  * pads TipDatesRandomScaler so that edges will not have negative branches and

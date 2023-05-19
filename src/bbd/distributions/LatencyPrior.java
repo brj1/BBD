@@ -4,12 +4,12 @@
  */
 package bbd.distributions;
 
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.State;
-import beast.evolution.alignment.TaxonSet;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.Tree;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.evolution.alignment.TaxonSet;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.inference.State;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -232,6 +232,7 @@ public class LatencyPrior extends Distribution {
 
     @Override
     public void sample(State state, Random random) {
+   
     }
     
 }

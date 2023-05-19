@@ -1,12 +1,14 @@
+package beast.base.inference.distribution;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package beast.math.distributions;
 
-import beast.core.Input;
-import beast.core.parameter.RealParameter;
+
+import beast.base.core.Input;
+import beast.base.inference.parameter.RealParameter;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.ContinuousDistribution;
 import org.apache.commons.math.distribution.Distribution;

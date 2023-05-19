@@ -5,8 +5,8 @@
  */
 package bbd.tipdate;
 
-import beast.evolution.tree.Node;
-import beast.util.Randomizer;
+import beast.base.evolution.tree.Node;
+import beast.base.util.Randomizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

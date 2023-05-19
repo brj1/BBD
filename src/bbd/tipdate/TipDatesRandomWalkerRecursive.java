@@ -22,18 +22,14 @@
 * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 * Boston, MA  02110-1301  USA
 */
-package beast.evolution.operators;
+package bbd.tipdate;
 
-import bbd.tipdate.TipDateRecursiveShifter;
-import beast.core.Input;
-import beast.evolution.alignment.Taxon;
-import beast.evolution.alignment.TaxonSet;
-import beast.evolution.tree.Node;
-import beast.util.Randomizer;
-import beast.util.TreeParser;
+import beast.base.core.Input;
+import beast.base.evolution.tree.Node;
+import beast.base.util.Randomizer;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
+
 
 /**
  * pads TipDatesRandomWalker so that edges will not haver negative branches and
@@ -106,7 +102,8 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
 
         return depth;
     }
-    
+  
+    /*
     public static void main(String[] args) {
         String newick = "((0:1.0,1:1.0)4:1.0,(2:1.0,3:1.0)5:0.5)6:0.0;";
         TreeParser treeParser = new TreeParser(newick, false, false, true, 0);
@@ -137,8 +134,6 @@ public class TipDatesRandomWalkerRecursive extends TipDatesRandomWalkerPadded {
         hastings_rec = walker.shifter.recursiveProposalAll(1.5, nodeList);
         hastings_rec = walker.shifter.recursiveProposalAll(-1.5, nodeList);
 
-//        walker.initByName("scaleAll", true);
-        
         double hastings = walker.proposal();
-    }
+    }*/
 }

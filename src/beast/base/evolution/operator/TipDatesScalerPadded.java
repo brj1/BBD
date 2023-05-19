@@ -22,17 +22,18 @@
 * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
 * Boston, MA  02110-1301  USA
 */
-package beast.evolution.operators;
+package beast.base.evolution.operator;
 
-import beast.core.Input;
-import beast.evolution.tree.Node;
-import beast.util.Randomizer;
+import beast.base.core.Input;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.util.Randomizer;
 
 /**
  * pads TipDatesRandomWalker so that edges will not haver negative branches
  * @author Bradley R. Jones
  */
-public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
+public class TipDatesScalerPadded extends TipDatesScaler {
     final public Input<Double> paddingInput = new Input<>("padding", "amount of padding to ensure that edges have nonnegative length");
     final public Input<Boolean> scaleAllInput = new Input<>("scaleAll",
             "if true, all tips dates are scaled, otherwise one is randomly selected",
@@ -43,8 +44,6 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
     
     @Override
     public void initAndValidate() {
-        reflectValue = false;
-        
         super.initAndValidate();
         
         if (paddingInput.get() != null) {
@@ -65,44 +64,34 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
     }
     
     private double scaleNode(int i, double scale) {
-        Node node = treeInput.get().getNode(taxonIndices[i]);
-        double value = node.getHeight();
-        double newValue = value + scale;
+        Tree tree = treeInput.get();
 
-        if ((node.getParent().getHeight() - newValue) <  padding) {
-            if (reflectValue) {
-                newValue = reflectValue(newValue, 0.0, node.getParent().getHeight());
-            } else {
-                return Double.NEGATIVE_INFINITY;
-            }
-        }
-        if (newValue == value) {
-            // this saves calculating the posterior
+        // randomly select leaf node
+        Node node = tree.getNode(taxonIndices[i]);
+        double upper = node.getParent().getHeight();
+        //double lower = 0.0;
+        //final double newValue = (Randomizer.nextDouble() * (upper -lower)) + lower;
+
+        // scale node
+        final double newValue = node.getHeight() * scale;
+
+        // check the tree does not get negative branch lengths
+        if (upper - newValue < padding) {
             return Double.NEGATIVE_INFINITY;
         }
         node.setHeight(newValue);
-        
-        return 0.0;
+
+        return -Math.log(scale);
     }
     
     @Override
     public double proposal() {
-        double scale;
-
-        if (useGaussian) {
-            scale = Randomizer.nextGaussian() * windowSize;
-        } else {
-            scale = Randomizer.nextDouble() * 2 * windowSize - windowSize;
-        }
-
-        if (scale == 0) {
-            return Double.NEGATIVE_INFINITY;
-        }
+        final double scale = (scaleFactor + (Randomizer.nextDouble() * ((1.0 / scaleFactor) - scaleFactor)));
 
         if (scaleAll) {
             double ratio = 0;
             
-            for (int i = 0; i < taxonIndices.length; i++) {
+            for (int i : taxonIndices) {
                 ratio += scaleNode(i, scale);
                 
                 if (Double.isInfinite(ratio)) {
@@ -113,7 +102,7 @@ public class TipDatesRandomWalkerPadded extends TipDatesRandomWalker {
             return ratio;
         } else {
             // randomly select leaf node
-            int i = Randomizer.nextInt(taxonIndices.length);
+            final int i = Randomizer.nextInt(taxonIndices.length);
 
             return scaleNode(i, scale);
         }

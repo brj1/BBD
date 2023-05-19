@@ -1,9 +1,11 @@
-package beast.evolution.tree;
+package bbd.tree;
 
-import beast.core.StateNode;
+import beast.base.inference.StateNode;
 import java.io.PrintStream;
-import beast.core.Input;
-import beast.evolution.alignment.Taxon;
+import beast.base.core.Input;
+import beast.base.evolution.alignment.Taxon;
+import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.Node;
 
 /**
  * Ensures Trait values are properly stored and restored when resuming BEAST
@@ -105,5 +107,10 @@ public class DangleTree extends StateNode {
     public String toString() {
 //        return tree.toString();
         return "";
+    }
+
+    @Override
+    public void log(long sample, PrintStream out) {
+
     }
 }

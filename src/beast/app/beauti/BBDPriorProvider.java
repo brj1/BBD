@@ -32,7 +32,7 @@ import beast.core.StateNode;
 import beast.evolution.alignment.Taxon;
 import beast.evolution.alignment.TaxonSet;
 import beast.evolution.tree.Tree;
-import beast.math.distributions.BBDPrior;
+import bbd.distributions.BBDPrior;
 import beast.math.distributions.OneOnX;
 import beast.math.distributions.ParametricDistribution;
 import java.util.ArrayList;
